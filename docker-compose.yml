@@ -1,0 +1,17 @@
+version: '3'
+
+volumes:
+  grafana:
+
+services:
+  grafana:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - grafana:/var/lib/grafana
+      - ./grafana/grafana.ini:/etc/grafana/grafana.ini
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    env_file: app.env
+    ports:
+      - 8000:3000
