@@ -12,6 +12,7 @@ services:
       - grafana:/var/lib/grafana
       - ./grafana/grafana.ini:/etc/grafana/grafana.ini
       - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/provisioning/dashboards/dashboard.json:/usr/share/grafana/public/dashboards/home.json # override default home dashboard
     env_file: app.env
     ports:
       - 8000:3000
