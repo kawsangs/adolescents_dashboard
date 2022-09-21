@@ -33,32 +33,205 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "description": "",
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 13,
+      "options": {
+        "ant": {
+          "color": "rgb(0, 100, 255)",
+          "delay": 400,
+          "paused": false,
+          "pulseColor": "rgb(0, 0, 0)",
+          "reverse": false,
+          "weight": 5
+        },
+        "coordinates": {
+          "customLatitudeColumnName": "",
+          "customLongitudeColumnName": ""
+        },
+        "discardZeroOrNull": true,
+        "geospatial": {
+          "boxZoom": false,
+          "doubleClickZoom": false,
+          "geoJsonUrl": "http://localhost:3000/provinces.json",
+          "scrollWheelZoom": false,
+          "touchZoom": false
+        },
+        "heat": {
+          "fitBoundsOnLoad": false,
+          "fitBoundsOnUpdate": false
+        },
+        "hex": {
+          "colorRangeFrom": "#f7fbff",
+          "colorRangeTo": "#ff0000",
+          "opacity": 0.6,
+          "radiusRangeFrom": 5,
+          "radiusRangeTo": 12
+        },
+        "map": {
+          "centerLatitude": 12.564,
+          "centerLongitude": 104.991,
+          "tileUrlSchema": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+          "useBoundsInQuery": false,
+          "useCenterFromFirstPos": false,
+          "useCenterFromLastPos": false,
+          "zoom": 7,
+          "zoomToDataBounds": false
+        },
+        "marker": {
+          "alwaysShowTooltips": true,
+          "showOnlyLastMarker": false,
+          "size": 25,
+          "sizeLast": 25,
+          "useSecondaryIconForAllMarkers": false,
+          "useSecondaryIconForLastMarker": false
+        },
+        "viewType": "geospatial"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _users AS (\n  SELECT\n    u.*\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND $__timeFilter(v.visit_date)\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY u.id, u.*\n)\n\nSELECT\n  CONCAT(\n    'អ្នកប្រើប្រាស់ក្នុងខេត្ត <b>', l.name_km, '</b> (', count(*), ' នាក់)'\n  ) as popup,\n  l.latitude as latitude,\n  l.longitude as longitude,\n  count(*)::text as tooltip\nFROM _users u\nINNER JOIN locations l ON u.province_id = l.id\nGROUP BY l.name_km, l.latitude, l.longitude;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "latitude"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "facilities",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "ផែនទីអ្នកប្រើប្រាស់កម្មវិធីសុខភាពយុវជន",
+      "type": "alexandra-trackmap-panel"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 7,
+        "x": 15,
+        "y": 0
+      },
+      "id": 15,
+      "options": {
+        "activeTheme": "Custom",
+        "disableThemePicker": true,
+        "themes": [
+          {
+            "name": "Custom",
+            "styles": [
+              {
+                "props": {
+                  "theme": "default"
+                },
+                "type": "basetheme"
+              },
+              {
+                "props": {
+                  "url": ""
+                },
+                "type": "bgimage"
+              },
+              {
+                "props": {
+                  "url": ""
+                },
+                "type": "url"
+              },
+              {
+                "props": {
+                  "text": ".css-1ejir9x {\n  line-height: 28px;\n  padding-left: 2px;\n  padding-right: 2px;\n}\n.css-nx8q14 {\n  letter-spacing: 0;\n}\n.css-nx8q14 svg {\n  overflow: inherit\n}\n.scrollbar-view {\n  margin-top: 12px;\n}"
+                },
+                "type": "style"
+              }
+            ]
+          }
+        ]
+      },
+      "pluginVersion": "0.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  created_at AS \"time\",\n  latitude\nFROM facilities\nWHERE\n  $__timeFilter(created_at)\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "latitude"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "facilities",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "សង្ខេបការចូលទស្សនា កម្មវិធីសុខភាពយុវជន",
+      "transparent": true,
+      "type": "yesoreyeram-boomtheme-panel"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            }
+            "mode": "thresholds"
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "orange",
                 "value": null
               },
               {
@@ -71,30 +244,25 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
-        "w": 24,
-        "x": 0,
-        "y": 0
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 1
       },
-      "id": 2,
+      "id": 7,
       "options": {
-        "barRadius": 0,
-        "barWidth": 0.97,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "right"
-        },
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
         "orientation": "auto",
-        "showValue": "auto",
-        "stacking": "none",
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
         },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
+        "textMode": "auto"
       },
       "pluginVersion": "9.0.6",
       "targets": [
@@ -107,7 +275,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT \n  DATE_TRUNC('month', vv.visit_date) AS visit_to_month,\n  count(case when vv.page_code='page_one' then 1 end) AS Page1,\n  count(case when vv.page_code='page_two' then 1 end) AS Page2,\n  count(case when vv.page_code='page_three' then 1 end) AS Page3,\n  count(case when vv.page_code='page_four' then 1 end) AS Page4,\n  count(case when vv.page_code='page_five' then 1 end) AS Page5,\n  count(case when vv.page_code='page_six' then 1 end) AS Page6\nFROM\n(SELECT\n  v.*,\n  p.code as page_code\nFROM visitors v\nINNER JOIN pages p ON v.page_id = p.id\nWHERE \n  p.parent_id is null\n  AND $__timeFilter(v.visit_date)\n) vv\nGROUP BY DATE_TRUNC('month', vv.visit_date)",
+          "rawSql": "SELECT\n    COUNT(DISTINCT v.app_user_id)\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND $__timeFilter(v.visit_date)\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)",
           "refId": "A",
           "select": [
             [
@@ -129,8 +297,92 @@
           ]
         }
       ],
-      "title": "Total visitors by month",
-      "type": "barchart"
+      "title": "ចំនួនសរុបអ្នកប្រើប្រាស់កម្មវិធីសុខភាពយុវជន",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 7
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _visits AS (\n  SELECT\n    v.*\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND $__timeFilter(v.visit_date)\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY v.id, v.*\n)\n\nSELECT COUNT(*)\nFROM _visits;\n  ",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "ចំនួនសរុបការចូលទស្សនាទំព័រមុខ (Main category)",
+      "type": "stat"
     },
     {
       "datasource": {
@@ -173,19 +425,19 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 9
+        "y": 13
       },
       "id": 4,
       "options": {
         "displayLabels": [
           "name",
-          "percent"
+          "value"
         ],
         "legend": {
           "displayMode": "list",
           "placement": "right",
           "values": [
-            "percent"
+            "value"
           ]
         },
         "pieType": "donut",
@@ -211,7 +463,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  p.name,\n  COUNT(*)\nFROM visitors v\nINNER JOIN pages p ON v.page_id = p.id\nWHERE \n  p.parent_id is null\n  AND $__timeFilter(v.visit_date)\nGROUP BY p.name;",
+          "rawSql": "WITH _visit_pages AS (\n  SELECT\n    v.*,\n    p.name as page_name\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND $__timeFilter(v.visit_date)\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY v.id, v.*, p.name\n)\n\nSELECT \n  v.page_name,\n  count(*)\nFROM _visit_pages v\nGROUP BY v.page_name;",
           "refId": "A",
           "select": [
             [
@@ -233,7 +485,7 @@
           ]
         }
       ],
-      "title": "Total visitors by main screen",
+      "title": "ចំនួនការចូលទស្សនាទំព័រមុខ",
       "type": "piechart"
     },
     {
@@ -244,7 +496,334 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Page 2"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#56A64B",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 13
+      },
+      "id": 9,
+      "options": {
+        "displayLabels": [
+          "name",
+          "value"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "values": [
+            "value"
+          ]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  c.name_km,\n  count(*)\nFROM visits v\nINNER JOIN pages p ON v.page_id = p.id\nINNER JOIN app_users u ON v.app_user_id = u.id\nINNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\nINNER JOIN characteristics c ON ac.characteristic_id = c.id\nWHERE \n  p.parent_id is null\n  AND $__timeFilter(v.visit_date)\n  AND u.gender in ($gender)\n  AND u.age BETWEEN ${age:raw}\n  AND u.province_id in ($province_id)\n  AND ac.characteristic_id in ($characteristic_id)\nGROUP BY c.name_km",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "ចំនួនការចូលទស្សនាទំព័រមុខបែងចែកតាមលក្ខណៈសម្បត្តិ",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Page 2"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#56A64B",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 21
+      },
+      "id": 8,
+      "options": {
+        "displayLabels": [
+          "name",
+          "value"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "values": [
+            "value"
+          ]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^count$/",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _visit_ages AS (\n  SELECT\n    v.*,\n    (\n      CASE \n        WHEN age > 45 THEN 'អាយុ > 45'\n        WHEN age > 30 THEN 'អាយុ 31 - 45'\n        WHEN age > 14 THEN 'អាយុ 15 - 30'\n        ELSE 'អាយុ< 15'\n      END\n    ) as age_range\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND $__timeFilter(v.visit_date)\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY v.id, v.*, u.age\n)\n\nSELECT \n  v.age_range,\n  count(*)\nFROM _visit_ages v\nGROUP BY v.age_range;\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "ចំនួនការចូលទស្សនាទំព័រមុខបែងចែកតាមអាយុ",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Page 2"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#56A64B",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 21
+      },
+      "id": 16,
+      "options": {
+        "displayLabels": [
+          "name",
+          "value"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "values": [
+            "value"
+          ]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^count$/",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  gender_km,\n  count(*)\nFROM (\n  SELECT\n    v.*,\n    (\n      CASE \n        WHEN gender = 'male' THEN 'ប្រុស'\n        WHEN gender = 'female' THEN 'ស្រី'\n        WHEN gender = 'lgbt' THEN 'LGBT+'\n        ELSE 'អត់ដឹង'\n      END\n    ) as gender_km,\n    u.gender\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND $__timeFilter(v.visit_date)\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY v.id, v.*, u.gender\n) AS vv\nGROUP BY vv.gender_km\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "ចំនួនការចូលទស្សនាទំព័រមុខបែងចែកតាមភេទ",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -264,25 +843,30 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
-        "w": 12,
-        "x": 12,
-        "y": 9
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 29
       },
-      "id": 6,
+      "id": 2,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right"
         },
-        "textMode": "auto"
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
       },
       "pluginVersion": "9.0.6",
       "targets": [
@@ -295,7 +879,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  COUNT(*)\nFROM visitors v\nINNER JOIN pages p ON v.page_id = p.id\nWHERE \n  p.parent_id is null\n  AND $__timeFilter(v.visit_date)",
+          "rawSql": "WITH _visit_pages AS (\n  SELECT\n    v.*,\n    p.code as page_code\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND $__timeFilter(v.visit_date)\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY v.id, v.*, p.code\n)\n\nSELECT \n  DATE_TRUNC('month', v.visit_date) AS visit_to_month,\n  count(case when v.page_code='page_one' then 1 end) AS Page1,\n  count(case when v.page_code='page_two' then 1 end) AS Page2,\n  count(case when v.page_code='page_three' then 1 end) AS Page3,\n  count(case when v.page_code='page_four' then 1 end) AS Page4,\n  count(case when v.page_code='page_five' then 1 end) AS Page5,\n  count(case when v.page_code='page_six' then 1 end) AS Page6,\n  count(case when v.page_code='clinic' then 1 end) AS Clinic,\n  count(case when v.page_code='video' then 1 end) AS Video,\n  count(case when v.page_code='service' then 1 end) AS Service\nFROM _visit_pages v\nGROUP BY DATE_TRUNC('month', v.visit_date);\n",
           "refId": "A",
           "select": [
             [
@@ -317,99 +901,163 @@
           ]
         }
       ],
-      "title": "Total visitors",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "orange",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 12,
-        "x": 12,
-        "y": 13
-      },
-      "id": 7,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "9.0.6",
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  COUNT(DISTINCT device_id)\nFROM visitors v\nINNER JOIN pages p ON v.page_id = p.id\nWHERE \n  p.parent_id is null\n  AND $__timeFilter(v.visit_date)",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "Total uniq visitors",
-      "type": "stat"
+      "title": "ចំនួនការចូលទស្សនាទំព័រមុខបែងចែកតាមខែ",
+      "type": "barchart"
     }
   ],
   "schemaVersion": 36,
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "postgres",
+          "uid": "PCC52D03280B7034C"
+        },
+        "definition": "select name_km AS __text, id AS __value  from locations where parent_id is null;",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Province",
+        "multi": true,
+        "name": "province_id",
+        "options": [],
+        "query": "select name_km AS __text, id AS __value  from locations where parent_id is null;",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "allValue": "0 AND 99",
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "hide": 0,
+        "includeAll": true,
+        "label": "Age",
+        "multi": false,
+        "name": "age",
+        "options": [
+          {
+            "selected": true,
+            "text": "All",
+            "value": "$__all"
+          },
+          {
+            "selected": false,
+            "text": "< 15",
+            "value": "0 AND 14"
+          },
+          {
+            "selected": false,
+            "text": "15 - 30",
+            "value": "15 AND 30"
+          },
+          {
+            "selected": false,
+            "text": "31 - 45",
+            "value": "31 AND 45"
+          },
+          {
+            "selected": false,
+            "text": "> 45",
+            "value": "46 AND 99"
+          }
+        ],
+        "query": "< 15 : 0 AND 14, 15 - 30 : 15 AND 30, 31 - 45 : 31 AND 45,  > 45 : 46 AND 99",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "hide": 0,
+        "includeAll": true,
+        "label": "Gender",
+        "multi": true,
+        "name": "gender",
+        "options": [
+          {
+            "selected": true,
+            "text": "All",
+            "value": "$__all"
+          },
+          {
+            "selected": false,
+            "text": "Male",
+            "value": "male"
+          },
+          {
+            "selected": false,
+            "text": "Female",
+            "value": "female"
+          },
+          {
+            "selected": false,
+            "text": "LGBT+",
+            "value": "lgbt"
+          },
+          {
+            "selected": false,
+            "text": "Unknown",
+            "value": "unkown"
+          }
+        ],
+        "query": "Male : male, Female : female, LGBT+ : lgbt, Unknown :  unkown",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "postgres",
+          "uid": "PCC52D03280B7034C"
+        },
+        "definition": "select name_km AS __text, id AS __value  from characteristics;",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Profile",
+        "multi": true,
+        "name": "characteristic_id",
+        "options": [],
+        "query": "select name_km AS __text, id AS __value  from characteristics;",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
   },
   "time": {
     "from": "now-1y",
