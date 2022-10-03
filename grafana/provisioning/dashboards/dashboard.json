@@ -58,7 +58,7 @@
         "geospatial": {
           "boxZoom": false,
           "doubleClickZoom": false,
-          "geoJsonUrl": "http://localhost:3000/provinces.json",
+          "geoJsonUrl": "http://192.168.1.115:3000/provinces.json",
           "scrollWheelZoom": false,
           "touchZoom": false
         },
@@ -839,7 +839,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _visit_ages AS (\n  SELECT\n    v.*,\n    (\n      CASE \n        WHEN age > 45 THEN 'អាយុ > 45'\n        WHEN age > 30 THEN 'អាយុ 31 - 45'\n        WHEN age > 14 THEN 'អាយុ 15 - 30'\n        ELSE 'អាយុ< 15'\n      END\n    ) as age_range\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY v.id, v.*, u.age\n)\n\nSELECT \n  v.age_range,\n  count(*)\nFROM _visit_ages v\nGROUP BY v.age_range;\n",
+          "rawSql": "WITH _visit_ages AS (\n  SELECT\n    v.*,\n    (\n      CASE \n        WHEN age > 30 THEN 'Age > 30'\n        WHEN age > 24 THEN 'Age 25 - 30'\n        WHEN age > 17 THEN 'Age 18 - 24'\n        WHEN age > 14 THEN 'Age 15 - 17'\n        WHEN age > 9 THEN 'Age 10 - 14'\n        ELSE 'Age < 10'\n      END\n    ) as age_range\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY v.id, v.*, u.age\n)\n\nSELECT \n  v.age_range,\n  count(*)\nFROM _visit_ages v\nGROUP BY v.age_range;\n",
           "refId": "A",
           "select": [
             [
@@ -998,8 +998,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
-                "value": null
+                "color": "blue"
               },
               {
                 "color": "red",
@@ -1109,7 +1108,7 @@
       {
         "allValue": "0 AND 99",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "All",
           "value": "$__all"
         },
@@ -1126,26 +1125,36 @@
           },
           {
             "selected": false,
-            "text": "< 15",
-            "value": "0 AND 14"
+            "text": "< 10",
+            "value": "0 AND 9"
           },
           {
             "selected": false,
-            "text": "15 - 30",
-            "value": "15 AND 30"
+            "text": "10 - 14",
+            "value": "10 AND 14"
           },
           {
             "selected": false,
-            "text": "31 - 45",
-            "value": "31 AND 45"
+            "text": "15 - 17",
+            "value": "15 AND 17"
           },
           {
             "selected": false,
-            "text": "> 45",
-            "value": "46 AND 99"
+            "text": "18 - 25",
+            "value": "18 AND 24"
+          },
+          {
+            "selected": false,
+            "text": "25 - 30",
+            "value": "25 AND 30"
+          },
+          {
+            "selected": false,
+            "text": "> 30",
+            "value": "31 AND 99"
           }
         ],
-        "query": "< 15 : 0 AND 14, 15 - 30 : 15 AND 30, 31 - 45 : 31 AND 45,  > 45 : 46 AND 99",
+        "query": "< 10 : 0 AND 9, 10 - 14 : 10 AND 14, 15 - 17 : 15 AND 17, 18 - 25 : 18 AND 24, 25 - 30 : 25 AND 30,  > 30 : 31 AND 99",
         "queryValue": "",
         "skipUrlSync": false,
         "type": "custom"
