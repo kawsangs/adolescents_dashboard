@@ -1,4 +1,4 @@
-FROM grafana/grafana-oss:9.0.6
+FROM grafana/grafana-oss:9.2.1
 
 LABEL maintainer="Sokly <sokly@kawsang.com>"
 
