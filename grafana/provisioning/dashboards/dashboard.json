@@ -24,7 +24,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 2,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -231,6 +231,258 @@
             "mode": "absolute",
             "steps": [
               {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 1
+      },
+      "id": 18,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^concat_ws$/",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _visits AS (\n  SELECT\n    v.*\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND p.code = 'app_visit'\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY v.id, v.*\n),\ncount_in_last_7_day AS (\n  SELECT count(*)\n  FROM _visits\n  WHERE visit_date > current_date - interval '7 days'\n)\n\nSELECT\n  concat_ws (\n    ' / ',\n    (select * from count_in_last_7_day)\n  );\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "# App visit (last 7 days)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 1
+      },
+      "id": 19,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^concat_ws$/",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _visits AS (\n  SELECT\n    v.*\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND p.code = 'app_visit'\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY v.id, v.*\n),\n\ncount_in_last_30_day AS (\n  SELECT count(*)\n  FROM _visits\n  WHERE visit_date > current_date - interval '30 days'\n)\n\nSELECT\n  concat_ws (\n    ' / ',\n    (select * from count_in_last_30_day)\n  );\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "# App visit (last 30 days)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 1
+      },
+      "id": 20,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^concat_ws$/",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _visits AS (\n  SELECT\n    v.*\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND p.code = 'app_visit'\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY v.id, v.*\n),\n\ncount_in_last_90_day AS (\n  SELECT count(*)\n  FROM _visits\n  WHERE visit_date > current_date - interval '90 days'\n)\n\nSELECT\n  concat_ws (\n    ' / ',\n    (select * from count_in_last_90_day)\n  );\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "# App visit (last 90 days)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
                 "color": "orange",
                 "value": null
               },
@@ -247,7 +499,7 @@
         "h": 4,
         "w": 6,
         "x": 12,
-        "y": 1
+        "y": 5
       },
       "id": 7,
       "options": {
@@ -264,7 +516,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.0.6",
+      "pluginVersion": "9.2.1",
       "targets": [
         {
           "datasource": {
@@ -305,6 +557,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "description": "Count every app is opened",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -331,7 +584,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 1
+        "y": 5
       },
       "id": 6,
       "options": {
@@ -348,7 +601,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.0.6",
+      "pluginVersion": "9.2.1",
       "targets": [
         {
           "datasource": {
@@ -389,90 +642,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 12,
-        "x": 12,
-        "y": 5
-      },
-      "id": 18,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "/^concat_ws$/",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "9.0.6",
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "WITH _visits AS (\n  SELECT\n    v.*\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND p.code = 'app_visit'\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY v.id, v.*\n),\ncount_in_last_7_day AS (\n  SELECT count(*)\n  FROM _visits\n  WHERE visit_date > current_date - interval '7 days'\n),\ncount_in_last_30_day AS (\n  SELECT count(*)\n  FROM _visits\n  WHERE visit_date > current_date - interval '30 days'\n),\ncount_in_last_90_day AS (\n  SELECT count(*)\n  FROM _visits\n  WHERE visit_date > current_date - interval '90 days'\n)\n\nSELECT\n  concat_ws (\n    ' / ',\n    (select * from count_in_last_7_day),\n    (select * from count_in_last_30_day),\n    (select * from count_in_last_90_day)\n  );\n",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "ចំនួនសរុប App visit  in last week(7 days), month(30 days), quarter(90 days)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
+      "description": "At least visit one among home, services, .. etc.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -516,7 +686,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.0.6",
+      "pluginVersion": "9.2.1",
       "targets": [
         {
           "datasource": {
@@ -557,6 +727,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "description": "At least visit one among home, services, .. etc.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -604,6 +775,7 @@
         "legend": {
           "displayMode": "list",
           "placement": "right",
+          "showLegend": true,
           "values": [
             "value"
           ]
@@ -661,6 +833,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "description": "At least visit one among home, services, .. etc.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -708,6 +881,7 @@
         "legend": {
           "displayMode": "list",
           "placement": "right",
+          "showLegend": true,
           "values": [
             "value"
           ]
@@ -765,6 +939,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "description": "At least visit one among home, services, .. etc.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -812,6 +987,7 @@
         "legend": {
           "displayMode": "list",
           "placement": "right",
+          "showLegend": true,
           "values": [
             "value"
           ]
@@ -869,6 +1045,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "description": "At least visit one among home, services, .. etc.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -916,6 +1093,7 @@
         "legend": {
           "displayMode": "list",
           "placement": "right",
+          "showLegend": true,
           "values": [
             "value"
           ]
@@ -973,12 +1151,15 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "fillOpacity": 80,
@@ -998,7 +1179,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue"
+                "color": "blue",
+                "value": null
               },
               {
                 "color": "red",
@@ -1023,7 +1205,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "right"
+          "placement": "right",
+          "showLegend": true
         },
         "orientation": "auto",
         "showValue": "auto",
@@ -1046,7 +1229,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _visit_pages AS (\n  SELECT\n    v.*,\n    p.code as page_code\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY v.id, v.*, p.code\n)\n\nSELECT \n  DATE_TRUNC('month', v.visit_date) AS visit_to_month,\n  count(case when v.page_code='page_one' then 1 end) AS Page1,\n  count(case when v.page_code='page_two' then 1 end) AS Page2,\n  count(case when v.page_code='page_three' then 1 end) AS Page3,\n  count(case when v.page_code='page_four' then 1 end) AS Page4,\n  count(case when v.page_code='page_five' then 1 end) AS Page5,\n  count(case when v.page_code='page_six' then 1 end) AS Page6,\n  count(case when v.page_code='clinic' then 1 end) AS Clinic,\n  count(case when v.page_code='video' then 1 end) AS Video,\n  count(case when v.page_code='service' then 1 end) AS Service\nFROM _visit_pages v\nGROUP BY DATE_TRUNC('month', v.visit_date);\n",
+          "rawSql": "WITH _visit_pages AS (\n  SELECT\n    v.*,\n    p.code as page_code\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY v.id, v.*, p.code\n)\n\nSELECT \n  DATE_TRUNC('month', v.visit_date) AS visit_to_month,\n  count(case when v.page_code='catg_lvl_1_reprod_health' then 1 end) AS \"សេវាសុខភាពបន្តពូជ\",\n  count(case when v.page_code='catg_lvl_1_sexual_edu' then 1 end) AS \"ការអប់រំសុខភាពផ្លូវភេទ\",\n  count(case when v.page_code='catg_lvl_1_understanding_gender' then 1 end) AS \"ការស្វែងយល់ពីយេនឌ័រ\",\n  count(case when v.page_code='catg_lvl_1_clinic_and_examination_service' then 1 end) AS \"គ្លីនិចសុខភាព និងសេវាកម្មពិនិត្យ\",\n  count(case when v.page_code='catg_lvl_1_mental_support' then 1 end) AS \"សេវាគាំទ្រផ្លូវចិត្ត\",\n  count(case when v.page_code='catg_lvl_1_entertainment' then 1 end) AS \"ការកំសាន្ត (វីដេអូអប់រំ)\",\n  count(case when v.page_code='clinic' then 1 end) AS Clinic,\n  count(case when v.page_code='video' then 1 end) AS Video,\n  count(case when v.page_code='service' then 1 end) AS Service\nFROM _visit_pages v\nGROUP BY DATE_TRUNC('month', v.visit_date);\n",
           "refId": "A",
           "select": [
             [
@@ -1072,7 +1255,7 @@
       "type": "barchart"
     }
   ],
-  "schemaVersion": 36,
+  "schemaVersion": 37,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -1198,10 +1381,10 @@
           {
             "selected": false,
             "text": "Unknown",
-            "value": "unkown"
+            "value": "unknown"
           }
         ],
-        "query": "Male : male, Female : female, LGBT+ : lgbt, Unknown :  unkown",
+        "query": "Male : male, Female : female, LGBT+ : lgbt, Unknown :  unknown",
         "queryValue": "",
         "skipUrlSync": false,
         "type": "custom"
@@ -1242,7 +1425,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "UNFPA",
+  "title": "Youth Health Dashboard",
   "uid": "I_U7-bi4z",
   "version": 1,
   "weekStart": ""
