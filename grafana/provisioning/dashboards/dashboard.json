@@ -24,7 +24,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 2,
+  "id": 1,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -58,7 +58,7 @@
         "geospatial": {
           "boxZoom": false,
           "doubleClickZoom": false,
-          "geoJsonUrl": "http://192.168.1.115:3000/provinces.json",
+          "geoJsonUrl": "http://localhost:3000/provinces.json",
           "scrollWheelZoom": false,
           "touchZoom": false
         },
@@ -103,7 +103,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _users AS (\n  SELECT\n    u.*\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND $__timeFilter(v.visit_date)\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY u.id, u.*\n)\n\nSELECT\n  CONCAT(\n    'អ្នកប្រើប្រាស់ក្នុងខេត្ត <b>', l.name_km, '</b> (', count(*), ' នាក់)'\n  ) as popup,\n  l.latitude as latitude,\n  l.longitude as longitude,\n  count(*)::text as tooltip\nFROM _users u\nINNER JOIN locations l ON u.province_id = l.id\nGROUP BY l.name_km, l.latitude, l.longitude;",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT\n  CONCAT(\n    'អ្នកប្រើប្រាស់ក្នុងខេត្ត <b>', l.name_km, '</b> (', count(*), ' នាក់)'\n  ) as popup,\n  l.latitude as latitude,\n  l.longitude as longitude,\n  count(*)::text as tooltip\nFROM _app_users au\nINNER JOIN locations l ON au.province_id = l.id\nWHERE $__timeFilter(au.registered_at)\nGROUP BY l.name_km, l.latitude, l.longitude;\n",
           "refId": "A",
           "select": [
             [
@@ -275,7 +275,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _visits AS (\n  SELECT\n    v.*\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND p.code = 'app_visit'\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY v.id, v.*\n),\ncount_in_last_7_day AS (\n  SELECT count(*)\n  FROM _visits\n  WHERE visit_date > current_date - interval '7 days'\n)\n\nSELECT\n  concat_ws (\n    ' / ',\n    (select * from count_in_last_7_day)\n  );\n",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_visits AS (\n  SELECT\n    v.*\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.parent_id is null\n    AND p.code = 'app_visit'\n  GROUP BY v.id, v.*\n),\ncount_in_last_7_day AS (\n  SELECT count(*)\n  FROM _visits\n  WHERE visit_date > current_date - interval '7 days'\n)\n\nSELECT\n  concat_ws (\n    ' / ',\n    (select * from count_in_last_7_day)\n  );",
           "refId": "A",
           "select": [
             [
@@ -359,7 +359,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _visits AS (\n  SELECT\n    v.*\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND p.code = 'app_visit'\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY v.id, v.*\n),\n\ncount_in_last_30_day AS (\n  SELECT count(*)\n  FROM _visits\n  WHERE visit_date > current_date - interval '30 days'\n)\n\nSELECT\n  concat_ws (\n    ' / ',\n    (select * from count_in_last_30_day)\n  );\n",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_visits AS (\n  SELECT\n    v.*\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.parent_id is null\n    AND p.code = 'app_visit'\n  GROUP BY v.id, v.*\n),\ncount_in_last_30_day AS (\n  SELECT count(*)\n  FROM _visits\n  WHERE visit_date > current_date - interval '30 days'\n)\n\nSELECT\n  concat_ws (\n    ' / ',\n    (select * from count_in_last_30_day)\n  );\n",
           "refId": "A",
           "select": [
             [
@@ -443,7 +443,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _visits AS (\n  SELECT\n    v.*\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND p.code = 'app_visit'\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY v.id, v.*\n),\n\ncount_in_last_90_day AS (\n  SELECT count(*)\n  FROM _visits\n  WHERE visit_date > current_date - interval '90 days'\n)\n\nSELECT\n  concat_ws (\n    ' / ',\n    (select * from count_in_last_90_day)\n  );\n",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_visits AS (\n  SELECT\n    v.*\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.parent_id is null\n    AND p.code = 'app_visit'\n  GROUP BY v.id, v.*\n),\ncount_in_last_90_day AS (\n  SELECT count(*)\n  FROM _visits\n  WHERE visit_date > current_date - interval '90 days'\n)\n\nSELECT\n  concat_ws (\n    ' / ',\n    (select * from count_in_last_90_day)\n  );\n",
           "refId": "A",
           "select": [
             [
@@ -527,7 +527,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n    COUNT(DISTINCT v.app_user_id)\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND $__timeFilter(v.visit_date)\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\nSELECT\n  COUNT(*)\nFROM _app_users au\nWHERE\n  $__timeFilter(au.registered_at)",
           "refId": "A",
           "select": [
             [
@@ -612,7 +612,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _visits AS (\n  SELECT\n    v.*\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND p.code = 'app_visit'\n    AND $__timeFilter(v.visit_date)\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY v.id, v.*\n)\n\nSELECT COUNT(*)\nFROM _visits;\n  ",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT\n  COUNT(*)\nFROM visits v\nINNER JOIN pages p ON v.page_id = p.id\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE \n  p.parent_id is null\n  AND p.code = 'app_visit'\n  AND $__timeFilter(v.visit_date)\n",
           "refId": "A",
           "select": [
             [
@@ -697,7 +697,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _visits AS (\n  SELECT\n    v.*\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY v.id, v.*\n)\n\nSELECT COUNT(*)\nFROM _visits;\n  ",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT\n  COUNT(*)\nFROM visits v\nINNER JOIN pages p ON v.page_id = p.id\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE \n  p.parent_id is null\n  AND p.code != 'app_visit'\n  AND $__timeFilter(v.visit_date)",
           "refId": "A",
           "select": [
             [
@@ -776,9 +776,7 @@
           "displayMode": "list",
           "placement": "right",
           "showLegend": true,
-          "values": [
-            "value"
-          ]
+          "values": []
         },
         "pieType": "donut",
         "reduceOptions": {
@@ -803,7 +801,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _visit_pages AS (\n  SELECT\n    v.*,\n    p.display_name as page_name\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY v.id, v.*, p.display_name\n)\n\nSELECT \n  v.page_name,\n  count(*)\nFROM _visit_pages v\nGROUP BY v.page_name;",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT\n  count(*),\n  p.display_name as page_name\nFROM visits v\nINNER JOIN pages p ON v.page_id = p.id\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE \n  p.parent_id is null\n  AND p.code != 'app_visit'\n  AND $__timeFilter(v.visit_date)\nGROUP BY p.display_name;\n",
           "refId": "A",
           "select": [
             [
@@ -882,9 +880,7 @@
           "displayMode": "list",
           "placement": "right",
           "showLegend": true,
-          "values": [
-            "value"
-          ]
+          "values": []
         },
         "pieType": "donut",
         "reduceOptions": {
@@ -909,7 +905,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  c.name_km,\n  count(*)\nFROM visits v\nINNER JOIN pages p ON v.page_id = p.id\nINNER JOIN app_users u ON v.app_user_id = u.id\nINNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\nINNER JOIN characteristics c ON ac.characteristic_id = c.id\nWHERE \n  p.parent_id is null\n  AND p.code != 'app_visit'\n  AND $__timeFilter(v.visit_date)\n  AND u.gender in ($gender)\n  AND u.age BETWEEN ${age:raw}\n  AND u.province_id in ($province_id)\n  AND ac.characteristic_id in ($characteristic_id)\nGROUP BY c.name_km",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_profile_visits AS (\n  SELECT\n    (CASE WHEN c.id is not null THEN c.name_km ELSE 'មិនកំណត់' END) as profile\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n)\n\nSELECT \n  pv.profile,\n  count(*)\nFROM _profile_visits pv\nGROUP BY pv.profile",
           "refId": "A",
           "select": [
             [
@@ -988,9 +984,7 @@
           "displayMode": "list",
           "placement": "right",
           "showLegend": true,
-          "values": [
-            "value"
-          ]
+          "values": []
         },
         "pieType": "donut",
         "reduceOptions": {
@@ -1015,7 +1009,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _visit_ages AS (\n  SELECT\n    v.*,\n    (\n      CASE \n        WHEN age > 30 THEN 'Age > 30'\n        WHEN age > 24 THEN 'Age 25 - 30'\n        WHEN age > 17 THEN 'Age 18 - 24'\n        WHEN age > 14 THEN 'Age 15 - 17'\n        WHEN age > 9 THEN 'Age 10 - 14'\n        ELSE 'Age < 10'\n      END\n    ) as age_range\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY v.id, v.*, u.age\n)\n\nSELECT \n  v.age_range,\n  count(*)\nFROM _visit_ages v\nGROUP BY v.age_range;\n",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_visit_ages AS (\n  SELECT\n    (\n      CASE \n        WHEN age > 30 THEN 'Age > 30'\n        WHEN age > 24 THEN 'Age 25 - 30'\n        WHEN age > 17 THEN 'Age 18 - 24'\n        WHEN age > 14 THEN 'Age 15 - 17'\n        WHEN age > 9 THEN 'Age 10 - 14'\n        WHEN age > 0 THEN 'Age < 10'\n        ELSE 'មិនកំណត់'\n      END\n    ) as age_range\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n  ORDER BY u.age\n)\n\nSELECT \n  v.age_range,\n  count(*)\nFROM _visit_ages v\nGROUP BY v.age_range;\n",
           "refId": "A",
           "select": [
             [
@@ -1094,9 +1088,7 @@
           "displayMode": "list",
           "placement": "right",
           "showLegend": true,
-          "values": [
-            "value"
-          ]
+          "values": []
         },
         "pieType": "donut",
         "reduceOptions": {
@@ -1121,7 +1113,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT \n  gender_km,\n  count(*)\nFROM (\n  SELECT\n    v.*,\n    (\n      CASE \n        WHEN gender = 'male' THEN 'ប្រុស'\n        WHEN gender = 'female' THEN 'ស្រី'\n        WHEN gender = 'lgbt' THEN 'LGBT+'\n        ELSE 'អត់ដឹង'\n      END\n    ) as gender_km,\n    u.gender\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY v.id, v.*, u.gender\n) AS vv\nGROUP BY vv.gender_km",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_visits AS (\n  SELECT\n    (\n      CASE \n        WHEN gender = 'male' THEN 'ប្រុស'\n        WHEN gender = 'female' THEN 'ស្រី'\n        WHEN gender = 'lgbt' THEN 'LGBT+'\n        WHEN gender = 'unknown' THEN 'អត់ដឹង'\n        ELSE 'មិនកំណត់'\n      END\n    ) as gender_km\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n)\n\nSELECT \n  gender_km,\n  count(*)\nFROM _visits\nGROUP BY gender_km",
           "refId": "A",
           "select": [
             [
@@ -1145,6 +1137,130 @@
       ],
       "title": "ចំនួនការចូលទស្សនាទំព័រមុខបែងចែកតាមភេទ",
       "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "count"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#56A64B",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 29
+      },
+      "id": 22,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT\n  t.name,\n  count(*) as \"ចំនួនចូលទស្សនា\"\nFROM visits v\nINNER JOIN _app_users u ON v.app_user_id = u.id\nINNER JOIN topics t ON v.pageable_id = t.id\nWHERE \n  $__timeFilter(v.visit_date)\n  AND v.pageable_type = 4\nGROUP BY t.name\nORDER BY count(*) DESC\nLIMIT 5;\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "latitude"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "facilities",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "ចំនួនចូលទស្សនាប្រធានបទច្រើនជាងគេទាំង៥",
+      "type": "barchart"
     },
     {
       "datasource": {
@@ -1195,7 +1311,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 29
+        "y": 37
       },
       "id": 2,
       "options": {
@@ -1229,7 +1345,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _visit_pages AS (\n  SELECT\n    v.*,\n    p.code as page_code\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN app_users u ON v.app_user_id = u.id\n  INNER JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  INNER JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n    AND u.gender in ($gender)\n    AND u.age BETWEEN ${age:raw}\n    AND u.province_id in ($province_id)\n    AND ac.characteristic_id in ($characteristic_id)\n  GROUP BY v.id, v.*, p.code\n)\n\nSELECT \n  DATE_TRUNC('month', v.visit_date) AS visit_to_month,\n  count(case when v.page_code='catg_lvl_1_reprod_health' then 1 end) AS \"សេវាសុខភាពបន្តពូជ\",\n  count(case when v.page_code='catg_lvl_1_sexual_edu' then 1 end) AS \"ការអប់រំសុខភាពផ្លូវភេទ\",\n  count(case when v.page_code='catg_lvl_1_understanding_gender' then 1 end) AS \"ការស្វែងយល់ពីយេនឌ័រ\",\n  count(case when v.page_code='catg_lvl_1_clinic_and_examination_service' then 1 end) AS \"គ្លីនិចសុខភាព និងសេវាកម្មពិនិត្យ\",\n  count(case when v.page_code='catg_lvl_1_mental_support' then 1 end) AS \"សេវាគាំទ្រផ្លូវចិត្ត\",\n  count(case when v.page_code='catg_lvl_1_entertainment' then 1 end) AS \"ការកំសាន្ត (វីដេអូអប់រំ)\",\n  count(case when v.page_code='clinic' then 1 end) AS Clinic,\n  count(case when v.page_code='video' then 1 end) AS Video,\n  count(case when v.page_code='service' then 1 end) AS Service\nFROM _visit_pages v\nGROUP BY DATE_TRUNC('month', v.visit_date);\n",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_visit_pages AS (\n  SELECT\n    v.visit_date,\n    p.code\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n)\n\nSELECT \n  DATE_TRUNC('month', v.visit_date) AS visit_to_month,\n  count(case when v.code='catg_lvl_1_reprod_health' then 1 end) AS \"យល់ដឹងពីសុខភាពបន្តពូជ\",\n  count(case when v.code='catg_lvl_1_sexual_edu' then 1 end) AS \"ការអប់រំសុខភាពផ្លូវភេទ\",\n  count(case when v.code='catg_lvl_1_understanding_gender' then 1 end) AS \"ការស្វែងយល់ពីយេនឌ័រ\",\n  count(case when v.code='service' then 1 end) AS \"គ្លីនិកសុខភាព\",\n  count(case when v.code='mental_support' then 1 end) AS \"សេវាគាំទ្រផ្លូវចិត្ត\",\n  count(case when v.code='video' then 1 end) AS \"វីដេអូអប់រំ\",\n  count(case when v.code='help' then 1 end) AS \"ជំនួយ\"\nFROM _visit_pages v\nGROUP BY DATE_TRUNC('month', v.visit_date);\n",
           "refId": "A",
           "select": [
             [
@@ -1274,14 +1390,14 @@
           "type": "postgres",
           "uid": "PCC52D03280B7034C"
         },
-        "definition": "select name_km AS __text, id AS __value  from locations where parent_id is null;",
+        "definition": "(select name_km AS __text, id AS __value  from locations where parent_id is null) union all (select 'មិនកំណត់' AS __text, '' AS __value)",
         "hide": 0,
         "includeAll": true,
         "label": "Province",
         "multi": true,
         "name": "province_id",
         "options": [],
-        "query": "select name_km AS __text, id AS __value  from locations where parent_id is null;",
+        "query": "(select name_km AS __text, id AS __value  from locations where parent_id is null) union all (select 'មិនកំណត់' AS __text, '' AS __value)",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -1289,9 +1405,9 @@
         "type": "query"
       },
       {
-        "allValue": "0 AND 99",
+        "allValue": "-1 AND 99",
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "All",
           "value": "$__all"
         },
@@ -1343,8 +1459,9 @@
         "type": "custom"
       },
       {
+        "allValue": "'female', 'lgbt', 'male', 'unknown', ''",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
@@ -1403,14 +1520,14 @@
           "type": "postgres",
           "uid": "PCC52D03280B7034C"
         },
-        "definition": "select name_km AS __text, id AS __value  from characteristics;",
+        "definition": "(select name_km AS __text, id::text AS __value  from characteristics) union all (select 'មិនកំណត់' AS __text, '' AS __value)",
         "hide": 0,
         "includeAll": true,
         "label": "Profile",
         "multi": true,
         "name": "characteristic_id",
         "options": [],
-        "query": "select name_km AS __text, id AS __value  from characteristics;",
+        "query": "(select name_km AS __text, id::text AS __value  from characteristics) union all (select 'មិនកំណត់' AS __text, '' AS __value)",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
