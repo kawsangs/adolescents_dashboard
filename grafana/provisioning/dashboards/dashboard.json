@@ -231,258 +231,6 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 12,
-        "y": 1
-      },
-      "id": 18,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "/^concat_ws$/",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "9.2.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_visits AS (\n  SELECT\n    v.*\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.parent_id is null\n    AND p.code = 'app_visit'\n  GROUP BY v.id, v.*\n),\ncount_in_last_7_day AS (\n  SELECT count(*)\n  FROM _visits\n  WHERE visit_date > current_date - interval '7 days'\n)\n\nSELECT\n  concat_ws (\n    ' / ',\n    (select * from count_in_last_7_day)\n  );",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "# App visit (last 7 days)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 16,
-        "y": 1
-      },
-      "id": 19,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "/^concat_ws$/",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "9.2.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_visits AS (\n  SELECT\n    v.*\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.parent_id is null\n    AND p.code = 'app_visit'\n  GROUP BY v.id, v.*\n),\ncount_in_last_30_day AS (\n  SELECT count(*)\n  FROM _visits\n  WHERE visit_date > current_date - interval '30 days'\n)\n\nSELECT\n  concat_ws (\n    ' / ',\n    (select * from count_in_last_30_day)\n  );\n",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "# App visit (last 30 days)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 20,
-        "y": 1
-      },
-      "id": 20,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "/^concat_ws$/",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "9.2.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_visits AS (\n  SELECT\n    v.*\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.parent_id is null\n    AND p.code = 'app_visit'\n  GROUP BY v.id, v.*\n),\ncount_in_last_90_day AS (\n  SELECT count(*)\n  FROM _visits\n  WHERE visit_date > current_date - interval '90 days'\n)\n\nSELECT\n  concat_ws (\n    ' / ',\n    (select * from count_in_last_90_day)\n  );\n",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "# App visit (last 90 days)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
                 "color": "orange",
                 "value": null
               },
@@ -499,7 +247,7 @@
         "h": 4,
         "w": 6,
         "x": 12,
-        "y": 5
+        "y": 1
       },
       "id": 7,
       "options": {
@@ -572,7 +320,7 @@
                 "value": null
               },
               {
-                "color": "red",
+                "color": "blue",
                 "value": 80
               }
             ]
@@ -584,7 +332,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 5
+        "y": 1
       },
       "id": 6,
       "options": {
@@ -642,6 +390,261 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "description": "Count distinct user visits within the last 7 days",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 5
+      },
+      "id": 18,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT\n  count(distinct(v.app_user_id))\nFROM visits v\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE visit_date > current_date - interval '7 days';",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "# User visits (last 7 days)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Count distinct user visits within the last 30 days",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 5
+      },
+      "id": 19,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT\n  count(distinct(v.app_user_id))\nFROM visits v\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE visit_date > current_date - interval '30 days';",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "# User visits (last 30 days)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Count distinct user visits within the last 90 days",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 5
+      },
+      "id": 20,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT\n  count(distinct(v.app_user_id))\nFROM visits v\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE visit_date > current_date - interval '90 days';",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "# User visits (last 90 days)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "At least visit one among home, services, .. etc.",
       "fieldConfig": {
         "defaults": {
@@ -657,7 +660,7 @@
                 "value": null
               },
               {
-                "color": "red",
+                "color": "purple",
                 "value": 80
               }
             ]
@@ -905,7 +908,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_profile_visits AS (\n  SELECT\n    (CASE WHEN c.id is not null THEN c.name_km ELSE 'មិនកំណត់' END) as profile\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n)\n\nSELECT \n  pv.profile,\n  count(*)\nFROM _profile_visits pv\nGROUP BY pv.profile",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_profile_visits AS (\n  SELECT\n    (CASE WHEN c.id is not null THEN c.name_km ELSE 'មិនកំណត់/អនាមិក' END) as profile\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n)\n\nSELECT \n  pv.profile,\n  count(*)\nFROM _profile_visits pv\nGROUP BY pv.profile",
           "refId": "A",
           "select": [
             [
@@ -1009,7 +1012,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_visit_ages AS (\n  SELECT\n    (\n      CASE \n        WHEN age > 30 THEN 'Age > 30'\n        WHEN age > 24 THEN 'Age 25 - 30'\n        WHEN age > 17 THEN 'Age 18 - 24'\n        WHEN age > 14 THEN 'Age 15 - 17'\n        WHEN age > 9 THEN 'Age 10 - 14'\n        WHEN age > 0 THEN 'Age < 10'\n        ELSE 'មិនកំណត់'\n      END\n    ) as age_range\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n  ORDER BY u.age\n)\n\nSELECT \n  v.age_range,\n  count(*)\nFROM _visit_ages v\nGROUP BY v.age_range;\n",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_visit_ages AS (\n  SELECT\n    (\n      CASE \n        WHEN age > 30 THEN 'Age > 30'\n        WHEN age > 24 THEN 'Age 25 - 30'\n        WHEN age > 17 THEN 'Age 18 - 24'\n        WHEN age > 14 THEN 'Age 15 - 17'\n        WHEN age > 9 THEN 'Age 10 - 14'\n        WHEN age > 0 THEN 'Age < 10'\n        ELSE 'អនាមិក'\n      END\n    ) as age_range\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n  ORDER BY u.age\n)\n\nSELECT \n  v.age_range,\n  count(*)\nFROM _visit_ages v\nGROUP BY v.age_range;\n",
           "refId": "A",
           "select": [
             [
@@ -1113,7 +1116,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_visits AS (\n  SELECT\n    (\n      CASE \n        WHEN gender = 'male' THEN 'ប្រុស'\n        WHEN gender = 'female' THEN 'ស្រី'\n        WHEN gender = 'lgbt' THEN 'LGBT+'\n        WHEN gender = 'unknown' THEN 'អត់ដឹង'\n        ELSE 'មិនកំណត់'\n      END\n    ) as gender_km\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n)\n\nSELECT \n  gender_km,\n  count(*)\nFROM _visits\nGROUP BY gender_km",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_visits AS (\n  SELECT\n    (\n      CASE \n        WHEN gender = 'male' THEN 'ប្រុស'\n        WHEN gender = 'female' THEN 'ស្រី'\n        WHEN gender = 'lgbt' THEN 'LGBT+'\n        WHEN gender = 'unknown' THEN 'អត់ដឹង'\n        ELSE 'អនាមិក'\n      END\n    ) as gender_km\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n)\n\nSELECT \n  gender_km,\n  count(*)\nFROM _visits\nGROUP BY gender_km",
           "refId": "A",
           "select": [
             [
