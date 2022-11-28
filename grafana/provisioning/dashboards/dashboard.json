@@ -1998,14 +1998,14 @@
           "type": "postgres",
           "uid": "PCC52D03280B7034C"
         },
-        "definition": "select name_km AS __text, id AS __value  from locations where parent_id is null",
+        "definition": "select name_km AS __text, id AS __value  from locations where parent_id is null order by id",
         "hide": 0,
         "includeAll": true,
         "label": "Province",
         "multi": true,
         "name": "province_id",
         "options": [],
-        "query": "select name_km AS __text, id AS __value  from locations where parent_id is null",
+        "query": "select name_km AS __text, id AS __value  from locations where parent_id is null order by id",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -2015,7 +2015,7 @@
       {
         "allValue": "-1 AND 99",
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "All",
           "value": "$__all"
         },
@@ -2126,7 +2126,7 @@
       },
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": [
             "All"
           ],
