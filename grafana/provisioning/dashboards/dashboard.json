@@ -730,7 +730,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "At least visit one among home, services, .. etc.",
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -743,7 +743,8 @@
               "viz": false
             }
           },
-          "mappings": []
+          "mappings": [],
+          "unit": "none"
         },
         "overrides": [
           {
@@ -834,7 +835,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_visit_ages AS (\n  SELECT\n    (\n      CASE \n        WHEN age > 30 THEN 'Age > 30'\n        WHEN age > 24 THEN 'Age 25 - 30'\n        WHEN age > 17 THEN 'Age 18 - 24'\n        WHEN age > 14 THEN 'Age 15 - 17'\n        WHEN age > 9 THEN 'Age 10 - 14'\n        WHEN age > 0 THEN 'Age < 10'\n        ELSE 'អនាមិក'\n      END\n    ) as age_range\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n  ORDER BY u.age\n)\n\nSELECT \n  v.age_range,\n  count(*)\nFROM _visit_ages v\nGROUP BY v.age_range;\n",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT \n    *,\n    (\n      CASE \n        WHEN age > 30 THEN 'Age > 30'\n        WHEN age > 24 THEN 'Age 25 - 30'\n        WHEN age > 17 THEN 'Age 18 - 24'\n        WHEN age > 14 THEN 'Age 15 - 17'\n        WHEN age > 9 THEN 'Age 10 - 14'\n        WHEN age > 0 THEN 'Age < 10'\n        ELSE 'អនាមិក'\n      END\n    ) as age_range\n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\nSELECT\n  au.age_range,\n  COUNT(*)\nFROM _app_users au\nWHERE\n  $__timeFilter(au.registered_at)\nGROUP BY au.age_range\n",
           "refId": "A",
           "select": [
             [
@@ -856,7 +857,7 @@
           ]
         }
       ],
-      "title": "ចំនួនការចូលទស្សនាទំព័រមុខបែងចែកតាមអាយុ",
+      "title": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមអាយុ",
       "type": "piechart"
     },
     {
@@ -864,7 +865,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "At least visit one among home, services, .. etc.",
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -953,7 +954,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_profile_visits AS (\n  SELECT\n    (CASE WHEN c.id is not null THEN c.name_km ELSE 'មិនកំណត់/អនាមិក' END) as profile\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = v.app_user_id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n)\n\nSELECT \n  pv.profile,\n  count(*)\nFROM _profile_visits pv\nGROUP BY pv.profile",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_profile_users AS (\n  SELECT\n    (CASE WHEN c.id is not null THEN c.name_km ELSE 'មិនកំណត់/អនាមិក' END) as profile\n  FROM _app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE $__timeFilter(u.registered_at)\n)\n\nSELECT \n  pu.profile,\n  count(*)\nFROM _profile_users pu\nGROUP BY pu.profile",
           "refId": "A",
           "select": [
             [
@@ -975,7 +976,7 @@
           ]
         }
       ],
-      "title": "ចំនួនការចូលទស្សនាទំព័រមុខបែងចែកតាមលក្ខណៈសម្បត្តិ",
+      "title": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមលក្ខណៈសម្បត្តិ",
       "type": "piechart"
     },
     {
@@ -983,7 +984,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "At least visit one among home, services, .. etc.",
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1043,6 +1044,21 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ស្រី"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
           }
         ]
       },
@@ -1087,7 +1103,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_visits AS (\n  SELECT\n    (\n      CASE \n        WHEN gender = 'male' THEN 'ប្រុស'\n        WHEN gender = 'female' THEN 'ស្រី'\n        WHEN gender = 'lgbt' THEN 'LGBT+'\n        WHEN gender = 'unknown' THEN 'អត់ដឹង'\n        ELSE 'អនាមិក'\n      END\n    ) as gender_km\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n)\n\nSELECT \n  gender_km,\n  count(*)\nFROM _visits\nGROUP BY gender_km",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT \n    *,\n    (\n      CASE \n        WHEN gender = 'male' THEN 'ប្រុស'\n        WHEN gender = 'female' THEN 'ស្រី'\n        WHEN gender = 'lgbt' THEN 'LGBT+'\n        WHEN gender = 'unknown' THEN 'មិនដឹង'\n        ELSE 'អនាមិក'\n      END\n    ) as gender_km\n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT u.gender_km, count(*)\nFROM _app_users u\nWHERE $__timeFilter(u.registered_at)\nGROUP BY u.gender_km",
           "refId": "A",
           "select": [
             [
@@ -1109,7 +1125,7 @@
           ]
         }
       ],
-      "title": "ចំនួនការចូលទស្សនាទំព័រមុខបែងចែកតាមភេទ",
+      "title": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមភេទ",
       "type": "piechart"
     },
     {
@@ -1136,13 +1152,103 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Page 2"
+              "options": "វីដេអូអប់រំ"
             },
             "properties": [
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "#56A64B",
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "គ្លីនិកសុខភាព"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "យល់ដឹងពីសុខភាពបន្តពូជ"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ជំនួយ"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ការអប់រំ​សុខភាព​ផ្លូវ​ភេទ"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ការស្វែងយល់ពីយេនឌ័រ"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "សេវាគាំទ្រផ្លូវចិត្ត"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#3ff634",
                   "mode": "fixed"
                 }
               }
@@ -1221,7 +1327,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "",
+      "description": "At least visit one among home, services, .. etc.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1259,7 +1365,113 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "វីដេអូអប់រំ"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "គ្លីនិកសុខភាព"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "យល់ដឹងពីសុខភាពបន្តពូជ"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ជំនួយ"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ការអប់រំសុខភាពផ្លូវភេ"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ការស្វែងយល់ពីយេនឌ័រ"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "សេវាគាំទ្រផ្លូវចិត្ត"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#3ff634",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 9,
@@ -1329,7 +1541,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "At least visit one among home, services, .. etc.",
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1485,7 +1697,7 @@
           ]
         }
       ],
-      "title": "ចំនួនអ្នកទាក់ទងសេវាប្រឹក្សា (# user contact to support)",
+      "title": "ចំនួនអ្នកទាក់ទងសេវាគាំទ្រផ្លូវចិត្ត (# user contact to support)",
       "type": "piechart"
     },
     {
@@ -1632,7 +1844,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_visit_pages AS (\n  SELECT\n    v.visit_date,\n    p.code\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.code in ('messenger', 'telegram', 'phone', 'sms')\n    AND $__timeFilter(v.visit_date)\n)\n\nSELECT \n  DATE_TRUNC('month', v.visit_date) AS visit_to_month,\n  count(case when v.code='telegram' then 1 end) AS \"Telegram (1280)\",\n  count(case when v.code='sms' then 1 end) AS \"SMS (1280)\",\n  count(case when v.code='phone' then 1 end) AS \"Hotline (1280)\",\n  count(case when v.code='messenger' then 1 end) AS \"Messenger (1280)\"\nFROM _visit_pages v\nGROUP BY DATE_TRUNC('month', v.visit_date);",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in ($gender)\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_visit_pages AS (\n  SELECT\n    v.visit_date,\n    p.code\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.code in ('messenger', 'telegram', 'phone', 'sms')\n    AND $__timeFilter(v.visit_date)\n)\n\nSELECT \n  DATE_TRUNC('month', v.visit_date) AS visit_to_month,\n  count(case when v.code='telegram' then 1 end) AS \"Telegram (1280)\",\n  count(case when v.code='phone' then 1 end) AS \"Hotline (1280)\",\n  count(case when v.code='messenger' then 1 end) AS \"Messenger (1280)\",\n  count(case when v.code='sms' then 1 end) AS \"SMS (1280)\"\nFROM _visit_pages v\nGROUP BY DATE_TRUNC('month', v.visit_date);",
           "refId": "A",
           "select": [
             [
@@ -1654,7 +1866,7 @@
           ]
         }
       ],
-      "title": "ចំនួនអ្នកទាក់ទងសេវាប្រឹក្សា (# user contact to support) បែងចែកតាមខែ",
+      "title": "ចំនួនអ្នកទាក់ទងសេវាគាំទ្រផ្លូវចិត្ត (# user contact to support) បែងចែកតាមខែ",
       "type": "barchart"
     },
     {
@@ -1689,7 +1901,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
