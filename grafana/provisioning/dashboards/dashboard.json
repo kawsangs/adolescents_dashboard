@@ -33,112 +33,10 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "",
-      "gridPos": {
-        "h": 13,
-        "w": 12,
-        "x": 0,
-        "y": 0
-      },
-      "id": 13,
-      "options": {
-        "ant": {
-          "color": "rgb(0, 100, 255)",
-          "delay": 400,
-          "paused": false,
-          "pulseColor": "rgb(0, 0, 0)",
-          "reverse": false,
-          "weight": 5
-        },
-        "coordinates": {
-          "customLatitudeColumnName": "",
-          "customLongitudeColumnName": ""
-        },
-        "discardZeroOrNull": true,
-        "geospatial": {
-          "boxZoom": false,
-          "doubleClickZoom": false,
-          "geoJsonUrl": "http://localhost:3000/provinces.json",
-          "scrollWheelZoom": false,
-          "touchZoom": false
-        },
-        "heat": {
-          "fitBoundsOnLoad": false,
-          "fitBoundsOnUpdate": false
-        },
-        "hex": {
-          "colorRangeFrom": "#f7fbff",
-          "colorRangeTo": "#ff0000",
-          "opacity": 0.6,
-          "radiusRangeFrom": 5,
-          "radiusRangeTo": 12
-        },
-        "map": {
-          "centerLatitude": 12.564,
-          "centerLongitude": 104.991,
-          "tileUrlSchema": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-          "useBoundsInQuery": false,
-          "useCenterFromFirstPos": false,
-          "useCenterFromLastPos": false,
-          "zoom": 7,
-          "zoomToDataBounds": false
-        },
-        "marker": {
-          "alwaysShowTooltips": true,
-          "showOnlyLastMarker": false,
-          "size": 25,
-          "sizeLast": 25,
-          "useSecondaryIconForAllMarkers": false,
-          "useSecondaryIconForLastMarker": false
-        },
-        "viewType": "geospatial"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT\n  CONCAT(\n    'អ្នកប្រើប្រាស់ក្នុងខេត្ត <b>', l.name_km, '</b> (', count(*), ' នាក់)'\n  ) as popup,\n  l.latitude as latitude,\n  l.longitude as longitude,\n  count(*)::text as tooltip\nFROM _app_users au\nINNER JOIN locations l ON au.province_id = l.id\nWHERE $__timeFilter(au.registered_at)\nGROUP BY l.name_km, l.latitude, l.longitude;\n",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "latitude"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "facilities",
-          "timeColumn": "created_at",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "ផែនទីអ្នកប្រើប្រាស់កម្មវិធីសុខភាពយុវជន",
-      "type": "alexandra-trackmap-panel"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "gridPos": {
         "h": 1,
-        "w": 7,
-        "x": 15,
+        "w": 24,
+        "x": 0,
         "y": 0
       },
       "id": 15,
@@ -212,7 +110,7 @@
           ]
         }
       ],
-      "title": "សង្ខេបការចូលទស្សនា កម្មវិធីសុខភាពយុវជន",
+      "title": "Summary of visits to the Youth Health App",
       "transparent": true,
       "type": "yesoreyeram-boomtheme-panel"
     },
@@ -221,6 +119,92 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "description": "ចំនួនសរុបអ្នកប្រើប្រាស់កម្មវិធីសុខភាពយុវជន",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 1
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_total_app_users AS (\n  SELECT count(*) as count\n  FROM app_users au\n  WHERE \n    id IN (\n      SELECT distinct(fu.id)\n      FROM _joined_app_users fu\n      WHERE \n        fu.province_id in ($province_id)\n        AND fu.age BETWEEN ${age:raw}\n        AND fu.gender in (${gender:raw})\n        AND fu.profile_id in ($characteristic_id)\n    )\n    AND $__timeFilter(au.registered_at)\n)\n\nSELECT\n  (\n    CASE \n      WHEN count < 1000 THEN count::text\n      ELSE \n        concat_ws('', ROUND((count / 1000.0), 1), 'K')\n      END\n  )\nFROM _total_app_users",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Total Users",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "ចំនួនសរុបការចូលទស្សនាកម្មវិធី (App visits)\n(Count every app is opened)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -235,91 +219,6 @@
                 "value": null
               },
               {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 12,
-        "y": 1
-      },
-      "id": 7,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "9.2.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\nSELECT\n  COUNT(*)\nFROM _app_users au\nWHERE\n  $__timeFilter(au.registered_at)",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "ចំនួនសរុបអ្នកប្រើប្រាស់កម្មវិធីសុខភាពយុវជន",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
-      "description": "Count every app is opened",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              },
-              {
                 "color": "blue",
                 "value": 80
               }
@@ -330,8 +229,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 18,
+        "w": 7,
+        "x": 8,
         "y": 1
       },
       "id": 6,
@@ -344,7 +243,7 @@
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "",
+          "fields": "/.*/",
           "values": false
         },
         "textMode": "auto"
@@ -360,7 +259,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT\n  COUNT(*)\nFROM visits v\nINNER JOIN pages p ON v.page_id = p.id\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE \n  p.parent_id is null\n  AND p.code = 'app_visit'\n  AND $__timeFilter(v.visit_date)\n",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT\n  \n  (\n    CASE \n      WHEN COUNT(*) < 1000 THEN COUNT(*)::text\n      ELSE \n        concat_ws('', ROUND((COUNT(*) / 1000.0), 1), 'K')\n      END\n  )\nFROM visits v\nINNER JOIN pages p ON v.page_id = p.id\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE \n  p.parent_id is null\n  AND p.code = 'app_visit'\n  AND $__timeFilter(v.visit_date)\n",
           "refId": "A",
           "select": [
             [
@@ -382,8 +281,195 @@
           ]
         }
       ],
-      "title": "ចំនួនសរុបការចូលទស្សនាកម្មវិធី (App visits)",
+      "title": "Total App Opens",
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "ចំនួនសរុបការចូលទស្សនាទំព័រមុខ (Main category)\nAt least visit one among home, services, .. etc.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "purple",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 9,
+        "x": 15,
+        "y": 1
+      },
+      "id": 17,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT\n  (\n    CASE \n      WHEN COUNT(*) < 1000 THEN COUNT(*)::text\n      ELSE \n        concat_ws('', ROUND((COUNT(*) / 1000.0), 1), 'K')\n      END\n  )\nFROM visits v\nINNER JOIN pages p ON v.page_id = p.id\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE \n  p.parent_id is null\n  AND p.code != 'app_visit'\n  AND $__timeFilter(v.visit_date)",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Total Visits of Main Category",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "ផែនទីអ្នកប្រើប្រាស់កម្មវិធីសុខភាពយុវជន",
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      },
+      "id": 13,
+      "options": {
+        "ant": {
+          "color": "rgb(0, 100, 255)",
+          "delay": 400,
+          "paused": false,
+          "pulseColor": "rgb(0, 0, 0)",
+          "reverse": false,
+          "weight": 5
+        },
+        "coordinates": {
+          "customLatitudeColumnName": "",
+          "customLongitudeColumnName": ""
+        },
+        "discardZeroOrNull": true,
+        "geospatial": {
+          "boxZoom": false,
+          "doubleClickZoom": false,
+          "geoJsonUrl": "http://localhost:3000/provinces.json",
+          "scrollWheelZoom": false,
+          "touchZoom": false
+        },
+        "heat": {
+          "fitBoundsOnLoad": false,
+          "fitBoundsOnUpdate": false
+        },
+        "hex": {
+          "colorRangeFrom": "#f7fbff",
+          "colorRangeTo": "#ff0000",
+          "opacity": 0.6,
+          "radiusRangeFrom": 5,
+          "radiusRangeTo": 12
+        },
+        "map": {
+          "centerLatitude": 12.564,
+          "centerLongitude": 104.991,
+          "tileUrlSchema": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+          "useBoundsInQuery": false,
+          "useCenterFromFirstPos": false,
+          "useCenterFromLastPos": false,
+          "zoom": 7,
+          "zoomToDataBounds": false
+        },
+        "marker": {
+          "alwaysShowTooltips": true,
+          "showOnlyLastMarker": false,
+          "size": 25,
+          "sizeLast": 25,
+          "useSecondaryIconForAllMarkers": false,
+          "useSecondaryIconForLastMarker": false
+        },
+        "viewType": "geospatial"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT\n  CONCAT(\n    '# User in <b>', l.name_en, '</b> (', count(*), ')'\n  ) as popup,\n  l.latitude as latitude,\n  l.longitude as longitude,\n  count(*)::text as tooltip\nFROM _app_users au\nINNER JOIN locations l ON au.province_id = l.id\nWHERE $__timeFilter(au.registered_at)\nGROUP BY l.id;\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "latitude"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "facilities",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "# Users on Map",
+      "type": "alexandra-trackmap-panel"
     },
     {
       "datasource": {
@@ -429,7 +515,7 @@
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "",
+          "fields": "/.*/",
           "values": false
         },
         "textMode": "auto"
@@ -445,7 +531,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT\n  count(distinct(v.app_user_id))\nFROM visits v\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE visit_date > current_date - interval '7 days';",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_total_app_users AS (\n  SELECT\n    count(distinct(v.app_user_id))\n  FROM visits v\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE visit_date > current_date - interval '7 days'\n)\n\nSELECT\n  (\n    CASE \n      WHEN count < 1000 THEN count::text\n      ELSE \n        concat_ws('', ROUND((count / 1000.0), 1), 'K')\n      END\n  )\nFROM _total_app_users\n\n  \n",
           "refId": "A",
           "select": [
             [
@@ -514,7 +600,7 @@
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "",
+          "fields": "/.*/",
           "values": false
         },
         "textMode": "auto"
@@ -530,7 +616,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT\n  count(distinct(v.app_user_id))\nFROM visits v\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE visit_date > current_date - interval '30 days';",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_total_app_users AS (\n  SELECT\n    count(distinct(v.app_user_id))\n  FROM visits v\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE visit_date > current_date - interval '30 days'\n)\n\nSELECT\n  (\n    CASE \n      WHEN count < 1000 THEN count::text\n      ELSE \n        concat_ws('', ROUND((count / 1000.0), 1), 'K')\n      END\n  )\nFROM _total_app_users\n",
           "refId": "A",
           "select": [
             [
@@ -599,7 +685,7 @@
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "",
+          "fields": "/.*/",
           "values": false
         },
         "textMode": "auto"
@@ -615,7 +701,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT\n  count(distinct(v.app_user_id))\nFROM visits v\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE visit_date > current_date - interval '90 days';",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_total_app_users AS (\n  SELECT\n    count(distinct(v.app_user_id))\n  FROM visits v\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE visit_date > current_date - interval '90 days'\n)\n\nSELECT\n  (\n    CASE \n      WHEN count < 1000 THEN count::text\n      ELSE \n        concat_ws('', ROUND((count / 1000.0), 1), 'K')\n      END\n  )\nFROM _total_app_users",
           "refId": "A",
           "select": [
             [
@@ -645,22 +731,28 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "At least visit one among home, services, .. etc.",
+      "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមខេត្ត",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
+          },
+          "custom": {
+            "align": "left",
+            "displayMode": "auto",
+            "filterable": false,
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "green",
                 "value": null
               },
               {
-                "color": "purple",
+                "color": "red",
                 "value": 80
               }
             ]
@@ -669,25 +761,22 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
+        "h": 9,
         "w": 12,
         "x": 12,
         "y": 9
       },
-      "id": 17,
+      "id": 26,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+        "footer": {
+          "enablePagination": true,
           "fields": "",
-          "values": false
+          "reducer": [
+            "sum"
+          ],
+          "show": false
         },
-        "textMode": "auto"
+        "showHeader": true
       },
       "pluginVersion": "9.2.1",
       "targets": [
@@ -700,19 +789,21 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT\n  COUNT(*)\nFROM visits v\nINNER JOIN pages p ON v.page_id = p.id\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE \n  p.parent_id is null\n  AND p.code != 'app_visit'\n  AND $__timeFilter(v.visit_date)",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT\n  concat_ws(' ', l.name_en, '(', l.name_km, ')') as \"Province\",\n  count(*) as \"# of users\"\nFROM _app_users au\nINNER JOIN locations l ON au.province_id = l.id\nWHERE $__timeFilter(au.registered_at)\nGROUP BY l.id\nORDER BY count(*) DESC;",
           "refId": "A",
           "select": [
             [
               {
                 "params": [
-                  "value"
+                  "latitude"
                 ],
                 "type": "column"
               }
             ]
           ],
-          "timeColumn": "time",
+          "table": "facilities",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
           "where": [
             {
               "name": "$__timeFilter",
@@ -722,269 +813,15 @@
           ]
         }
       ],
-      "title": "ចំនួនសរុបការចូលទស្សនាទំព័រមុខ (Main category)",
-      "type": "stat"
+      "title": "# Users by Provinces",
+      "type": "table"
     },
     {
       "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            }
-          },
-          "mappings": [],
-          "unit": "none"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Page 2"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#56A64B",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "អនាមិក"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "orange",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Age 25 - 30"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#1500fa",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 7,
-        "x": 0,
-        "y": 13
-      },
-      "id": 8,
-      "options": {
-        "displayLabels": [
-          "name",
-          "value"
-        ],
-        "legend": {
-          "displayMode": "list",
-          "placement": "right",
-          "showLegend": true,
-          "values": []
-        },
-        "pieType": "donut",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "/^count$/",
-          "values": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT \n    *,\n    (\n      CASE \n        WHEN age > 30 THEN 'Age > 30'\n        WHEN age > 24 THEN 'Age 25 - 30'\n        WHEN age > 17 THEN 'Age 18 - 24'\n        WHEN age > 14 THEN 'Age 15 - 17'\n        WHEN age > 9 THEN 'Age 10 - 14'\n        WHEN age > 0 THEN 'Age < 10'\n        ELSE 'អនាមិក'\n      END\n    ) as age_range\n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\nSELECT\n  au.age_range,\n  COUNT(*)\nFROM _app_users au\nWHERE\n  $__timeFilter(au.registered_at)\nGROUP BY au.age_range\n",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមអាយុ",
-      "type": "piechart"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            }
-          },
-          "mappings": []
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Page 2"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#56A64B",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "មិនកំណត់/អនាមិក"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "orange",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 10,
-        "x": 7,
-        "y": 13
-      },
-      "id": 9,
-      "options": {
-        "displayLabels": [
-          "name",
-          "value"
-        ],
-        "legend": {
-          "displayMode": "list",
-          "placement": "right",
-          "showLegend": true,
-          "values": []
-        },
-        "pieType": "donut",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_profile_users AS (\n  SELECT\n    (CASE WHEN c.id is not null THEN c.name_km ELSE 'មិនកំណត់/អនាមិក' END) as profile\n  FROM _app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE $__timeFilter(u.registered_at)\n)\n\nSELECT \n  pu.profile,\n  count(*)\nFROM _profile_users pu\nGROUP BY pu.profile",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមលក្ខណៈសម្បត្តិ",
-      "type": "piechart"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
-      "description": "",
+      "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមភេទ",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1059,14 +896,89 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Female"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Male"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Anonymous"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "LGBT+"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Unknown"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
           }
         ]
       },
       "gridPos": {
         "h": 8,
         "w": 7,
-        "x": 17,
-        "y": 13
+        "x": 0,
+        "y": 18
       },
       "id": 16,
       "options": {
@@ -1103,7 +1015,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT \n    *,\n    (\n      CASE \n        WHEN gender = 'male' THEN 'ប្រុស'\n        WHEN gender = 'female' THEN 'ស្រី'\n        WHEN gender = 'lgbt' THEN 'LGBT+'\n        WHEN gender = 'unknown' THEN 'មិនដឹង'\n        ELSE 'អនាមិក'\n      END\n    ) as gender_km\n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT u.gender_km, count(*)\nFROM _app_users u\nWHERE $__timeFilter(u.registered_at)\nGROUP BY u.gender_km",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT \n    *,\n    (\n      CASE \n        WHEN gender = 'male' THEN 'Male'\n        WHEN gender = 'female' THEN 'Female'\n        WHEN gender = 'lgbt' THEN 'LGBT+'\n        WHEN gender = 'unknown' THEN 'Unknown'\n        ELSE 'Anonymous'\n      END\n    ) as gender_en\n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT u.gender_en, count(*)\nFROM _app_users u\nWHERE $__timeFilter(u.registered_at)\nGROUP BY u.gender_en",
           "refId": "A",
           "select": [
             [
@@ -1125,7 +1037,7 @@
           ]
         }
       ],
-      "title": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមភេទ",
+      "title": "# Users by Gender",
       "type": "piechart"
     },
     {
@@ -1133,7 +1045,360 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "At least visit one among home, services, .. etc.",
+      "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមលក្ខណៈសម្បត្តិ",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Page 2"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#56A64B",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "មិនកំណត់/អនាមិក"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Unknown/Anonymous"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ជនជាតិដើម"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "count"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "មានប័ណ្ណសមធម៌(ប័ណ្ណក្រីក្រ)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ជនមានពិការភាព"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 10,
+        "x": 7,
+        "y": 18
+      },
+      "id": 9,
+      "options": {
+        "displayLabels": [
+          "name",
+          "value"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true,
+          "values": []
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_profile_users AS (\n  SELECT\n    (CASE WHEN c.id is not null THEN c.name_en ELSE 'Unknown/Anonymous' END) as profile\n  FROM _app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE $__timeFilter(u.registered_at)\n)\n\nSELECT \n  pu.profile,\n  count(*)\nFROM _profile_users pu\nGROUP BY pu.profile",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "# Users by Profile",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមអាយុ",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [],
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Page 2"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#56A64B",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "អនាមិក"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Age 25 - 30"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#1500fa",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Anonymous"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 7,
+        "x": 17,
+        "y": 18
+      },
+      "id": 8,
+      "options": {
+        "displayLabels": [
+          "name",
+          "value"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true,
+          "values": []
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^count$/",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT \n    *,\n    (\n      CASE \n        WHEN age > 30 THEN 'Age > 30'\n        WHEN age > 24 THEN 'Age 25 - 30'\n        WHEN age > 17 THEN 'Age 18 - 24'\n        WHEN age > 14 THEN 'Age 15 - 17'\n        WHEN age > 9 THEN 'Age 10 - 14'\n        WHEN age > 0 THEN 'Age < 10'\n        ELSE 'Anonymous'\n      END\n    ) as age_range\n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\nSELECT\n  au.age_range,\n  COUNT(*)\nFROM _app_users au\nWHERE\n  $__timeFilter(au.registered_at)\nGROUP BY au.age_range\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "# Users by Age Range",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "ចំនួនការចូលទស្សនាទំព័រមុខ (At least visit one among home, services, .. etc.)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1253,6 +1518,111 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Educational Video"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Health Clinic"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Understand reproductive health"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "FAQ"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Sexual Health Education"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Understanding gender"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mental Support Services"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#3ff634",
+                  "mode": "fixed"
+                }
+              }
+            ]
           }
         ]
       },
@@ -1260,7 +1630,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 21
+        "y": 26
       },
       "id": 4,
       "options": {
@@ -1297,7 +1667,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT\n  count(*),\n  p.name_km as page_name\nFROM visits v\nINNER JOIN pages p ON v.page_id = p.id\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE \n  p.parent_id is null\n  AND p.code != 'app_visit'\n  AND $__timeFilter(v.visit_date)\nGROUP BY p.name_km;\n",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT\n  count(*),\n  p.name_en as page_name\nFROM visits v\nINNER JOIN pages p ON v.page_id = p.id\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE \n  p.parent_id is null\n  AND p.code != 'app_visit'\n  AND $__timeFilter(v.visit_date)\nGROUP BY p.name_en;\n",
           "refId": "A",
           "select": [
             [
@@ -1319,7 +1689,7 @@
           ]
         }
       ],
-      "title": "ចំនួនការចូលទស្សនាទំព័រមុខ",
+      "title": "# Visits on Each Category",
       "type": "piechart"
     },
     {
@@ -1327,7 +1697,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "At least visit one among home, services, .. etc.",
+      "description": "ចំនួនការចូលទស្សនាទំព័រមុខបែងចែកតាមខែ (At least visit one among home, services, .. etc.)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1337,7 +1707,7 @@
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
-            "axisPlacement": "auto",
+            "axisPlacement": "left",
             "fillOpacity": 80,
             "gradientMode": "none",
             "hideFrom": {
@@ -1470,6 +1840,111 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Educational Video"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Health Clinic"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Understand reproductive health"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "FAQ"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Sexual Health Education"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Understanding gender"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mental Support Services"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#3ff634",
+                  "mode": "fixed"
+                }
+              }
+            ]
           }
         ]
       },
@@ -1477,7 +1952,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 21
+        "y": 26
       },
       "id": 2,
       "options": {
@@ -1511,7 +1986,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_visit_pages AS (\n  SELECT\n    v.visit_date,\n    p.code\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n)\n\nSELECT \n  DATE_TRUNC('month', v.visit_date) AS visit_to_month,\n  count(case when v.code='video' then 1 end) AS \"វីដេអូអប់រំ\",\n  count(case when v.code='service' then 1 end) AS \"គ្លីនិកសុខភាព\",\n  count(case when v.code='catg_lvl_1_reprod_health' then 1 end) AS \"យល់ដឹងពីសុខភាពបន្តពូជ\",\n  count(case when v.code='help' then 1 end) AS \"ជំនួយ\",\n  count(case when v.code='catg_lvl_1_sexual_edu' then 1 end) AS \"ការអប់រំសុខភាពផ្លូវភេទ\",\n  count(case when v.code='catg_lvl_1_understanding_gender' then 1 end) AS \"ការស្វែងយល់ពីយេនឌ័រ\",\n  count(case when v.code='mental_support' then 1 end) AS \"សេវាគាំទ្រផ្លូវចិត្ត\"\nFROM _visit_pages v\nGROUP BY DATE_TRUNC('month', v.visit_date);\n",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_visit_pages AS (\n  SELECT\n    v.visit_date,\n    p.code\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.parent_id is null\n    AND p.code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n)\n\nSELECT \n  to_char(DATE_TRUNC('month', v.visit_date), 'Mon-YY') AS visit_to_month,\n  count(case when v.code='video' then 1 end) AS \"Educational Video\",\n  count(case when v.code='service' then 1 end) AS \"Health Clinic\",\n  count(case when v.code='catg_lvl_1_reprod_health' then 1 end) AS \"Understand reproductive health\",\n  count(case when v.code='help' then 1 end) AS \"FAQ\",\n  count(case when v.code='catg_lvl_1_sexual_edu' then 1 end) AS \"Sexual Health Education\",\n  count(case when v.code='catg_lvl_1_understanding_gender' then 1 end) AS \"Understanding gender\",\n  count(case when v.code='mental_support' then 1 end) AS \"Mental Support Services\"\nFROM _visit_pages v\nGROUP BY DATE_TRUNC('month', v.visit_date);",
           "refId": "A",
           "select": [
             [
@@ -1533,7 +2008,7 @@
           ]
         }
       ],
-      "title": "ចំនួនការចូលទស្សនាទំព័រមុខបែងចែកតាមខែ",
+      "title": "# Visits on Each Category by Month",
       "type": "barchart"
     },
     {
@@ -1541,7 +2016,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "",
+      "description": "ចំនួនអ្នកចុចទាក់ទងសេវាគាំទ្រផ្លូវចិត្ត 1280 (# of initial contact to 1280)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1623,7 +2098,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 30
+        "y": 35
       },
       "id": 23,
       "options": {
@@ -1682,7 +2157,7 @@
           ]
         }
       ],
-      "title": "ចំនួនអ្នកទាក់ទងសេវាគាំទ្រផ្លូវចិត្ត 1280 (# user contact 1280)",
+      "title": "Initial Contact to 1280",
       "type": "piechart"
     },
     {
@@ -1690,7 +2165,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "",
+      "description": "ចំនួនអ្នកចុចទាក់ទងសេវាគាំទ្រផ្លូវចិត្ត 1280 (# of initial contact to 1280) by month",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1795,7 +2270,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 30
+        "y": 35
       },
       "id": 24,
       "options": {
@@ -1829,7 +2304,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_visit_pages AS (\n  SELECT\n    v.visit_date,\n    p.code\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.code in ('messenger', 'telegram', 'phone', 'sms')\n    AND $__timeFilter(v.visit_date)\n)\n\nSELECT \n  DATE_TRUNC('month', v.visit_date) AS visit_to_month,\n  count(case when v.code='telegram' then 1 end) AS \"Telegram\",\n  count(case when v.code='phone' then 1 end) AS \"Hotline\",\n  count(case when v.code='messenger' then 1 end) AS \"Messenger\",\n  count(case when v.code='sms' then 1 end) AS \"SMS\"\nFROM _visit_pages v\nGROUP BY DATE_TRUNC('month', v.visit_date);",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n),\n_visit_pages AS (\n  SELECT\n    v.visit_date,\n    p.code\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.code in ('messenger', 'telegram', 'phone', 'sms')\n    AND $__timeFilter(v.visit_date)\n)\n\nSELECT \n  to_char(DATE_TRUNC('month', v.visit_date), 'Mon-YY') AS visit_to_month,\n  count(case when v.code='telegram' then 1 end) AS \"Telegram\",\n  count(case when v.code='phone' then 1 end) AS \"Hotline\",\n  count(case when v.code='messenger' then 1 end) AS \"Messenger\",\n  count(case when v.code='sms' then 1 end) AS \"SMS\"\nFROM _visit_pages v\nGROUP BY DATE_TRUNC('month', v.visit_date);",
           "refId": "A",
           "select": [
             [
@@ -1851,7 +2326,7 @@
           ]
         }
       ],
-      "title": "ចំនួនអ្នកទាក់ទងសេវាគាំទ្រផ្លូវចិត្ត 1280 (# user contact 1280) បែងចែកតាមខែ",
+      "title": "Initial Contact to 1280 by Month",
       "type": "barchart"
     },
     {
@@ -1859,6 +2334,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "description": "ចំនួនចូលទស្សនាប្រធានបទសំណួរច្រើនជាងគេទាំង 10",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1915,10 +2391,10 @@
         ]
       },
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 24,
         "x": 0,
-        "y": 39
+        "y": 44
       },
       "id": 22,
       "options": {
@@ -1951,7 +2427,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT\n  t.name,\n  count(*) as \"ចំនួនចូលទស្សនា\"\nFROM visits v\nINNER JOIN _app_users u ON v.app_user_id = u.id\nINNER JOIN topics t ON v.pageable_id = t.id\nWHERE \n  $__timeFilter(v.visit_date)\n  AND v.pageable_type = 4\nGROUP BY t.name\nORDER BY count(*) DESC\nLIMIT 5;\n",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n  )\n)\n\nSELECT\n  t.name,\n  count(*) as \"# of visits\"\nFROM visits v\nINNER JOIN _app_users u ON v.app_user_id = u.id\nINNER JOIN topics t ON v.pageable_id = t.id\nWHERE \n  $__timeFilter(v.visit_date)\n  AND v.pageable_type = 4\nGROUP BY t.name\nORDER BY count(*) DESC\nLIMIT 10;\n",
           "refId": "A",
           "select": [
             [
@@ -1975,7 +2451,7 @@
           ]
         }
       ],
-      "title": "ចំនួនចូលទស្សនាប្រធានបទសំណួរច្រើនជាងគេទាំង៥",
+      "title": "Top 10 Most Visited Topics",
       "type": "barchart"
     }
   ],
@@ -1986,7 +2462,7 @@
     "list": [
       {
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
@@ -1998,14 +2474,14 @@
           "type": "postgres",
           "uid": "PCC52D03280B7034C"
         },
-        "definition": "select name_km AS __text, id AS __value  from locations where parent_id is null order by id",
+        "definition": "select name_en AS __text, id AS __value  from locations where parent_id is null order by id",
         "hide": 0,
         "includeAll": true,
         "label": "Province",
         "multi": true,
         "name": "province_id",
         "options": [],
-        "query": "select name_km AS __text, id AS __value  from locations where parent_id is null order by id",
+        "query": "select name_en AS __text, id AS __value  from locations where parent_id is null order by id",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -2015,7 +2491,7 @@
       {
         "allValue": "-1 AND 99",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "All",
           "value": "$__all"
         },
@@ -2062,11 +2538,11 @@
           },
           {
             "selected": false,
-            "text": "អនាមិក",
+            "text": "Anonymous",
             "value": "-1 AND -1"
           }
         ],
-        "query": "< 10 : 0 AND 9, 10 - 14 : 10 AND 14, 15 - 17 : 15 AND 17, 18 - 25 : 18 AND 24, 25 - 30 : 25 AND 30,  > 30 : 31 AND 99, អនាមិក : -1 AND -1",
+        "query": "< 10 : 0 AND 9, 10 - 14 : 10 AND 14, 15 - 17 : 15 AND 17, 18 - 25 : 18 AND 24, 25 - 30 : 25 AND 30,  > 30 : 31 AND 99, Anonymous : -1 AND -1",
         "queryValue": "",
         "skipUrlSync": false,
         "type": "custom"
@@ -2074,7 +2550,7 @@
       {
         "allValue": "",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
@@ -2115,18 +2591,18 @@
           },
           {
             "selected": false,
-            "text": "អនាមិក",
+            "text": "Anonymous",
             "value": "''"
           }
         ],
-        "query": "Male : 'male', Female : 'female', LGBT+ : 'lgbt', Unknown :  'unknown',  អនាមិក : ''",
+        "query": "Male : 'male', Female : 'female', LGBT+ : 'lgbt', Unknown :  'unknown',  Anonymous : ''",
         "queryValue": "",
         "skipUrlSync": false,
         "type": "custom"
       },
       {
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
@@ -2138,14 +2614,14 @@
           "type": "postgres",
           "uid": "PCC52D03280B7034C"
         },
-        "definition": "(select name_km AS __text, id::text AS __value  from characteristics) union all (select 'មិនកំណត់/អនាមិក' AS __text, '' AS __value)",
+        "definition": "(select name_en AS __text, id::text AS __value  from characteristics) union all (select 'Undefined/Anonymous' AS __text, '' AS __value)",
         "hide": 0,
         "includeAll": true,
         "label": "Profile",
         "multi": true,
         "name": "characteristic_id",
         "options": [],
-        "query": "(select name_km AS __text, id::text AS __value  from characteristics) union all (select 'មិនកំណត់/អនាមិក' AS __text, '' AS __value)",
+        "query": "(select name_en AS __text, id::text AS __value  from characteristics) union all (select 'Undefined/Anonymous' AS __text, '' AS __value)",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
