@@ -119,7 +119,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "ចំនួនសរុបអ្នកប្រើប្រាស់កម្មវិធីសុខភាពយុវជន",
+      "description": "ចំនួនសរុបអ្នកប្រើប្រាស់កម្មវិធីសុខភាពយុវជន(Total number of app users)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -374,7 +374,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "ផែនទីអ្នកប្រើប្រាស់កម្មវិធីសុខភាពយុវជន",
+      "description": "ផែនទីអ្នកប្រើប្រាស់កម្មវិធីសុខភាពយុវជន (Map of app users)",
       "gridPos": {
         "h": 13,
         "w": 12,
@@ -476,7 +476,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Count distinct user visits within the last 7 days",
+      "description": "ចំនួនការចូលមើលរបស់អ្នកប្រើប្រាស់ផ្សេងគ្នាក្នុងរយៈពេល 7 ថ្ងៃចុងក្រោយ (Count distinct user visits within the last 7 days)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -561,7 +561,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Count distinct user visits within the last 30 days",
+      "description": "ចំនួនការចូលមើលរបស់អ្នកប្រើប្រាស់ផ្សេងគ្នាក្នុងរយៈពេល 30 ថ្ងៃចុងក្រោយ (Count distinct user visits within the last 30 days)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -646,7 +646,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Count distinct user visits within the last 90 days",
+      "description": "ចំនួនការចូលមើលរបស់អ្នកប្រើប្រាស់ផ្សេងគ្នាក្នុងរយៈពេល 90 ថ្ងៃចុងក្រោយ  (Count distinct user visits within the last 90 days)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -731,7 +731,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមខេត្ត",
+      "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមខេត្ត (Number of app users by province)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -821,7 +821,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Number of app user by platform",
+      "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាម Platform (Number of app user by platform)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -910,7 +910,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមភេទ",
+      "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមភេទ (Number of app users by gender)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1134,7 +1134,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមអាយុ",
+      "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមអាយុ (Number of app users by age range)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1284,7 +1284,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមលក្ខណៈសម្បត្តិ",
+      "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមលក្ខណៈសម្បត្តិ (Number of app users by profile)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1814,7 +1814,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue"
+                "color": "blue",
+                "value": null
               },
               {
                 "color": "red",
@@ -2253,7 +2254,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "ចំនួនអ្នកចុចទាក់ទងសេវាគាំទ្រផ្លូវចិត្ត 1280 (# of initial contact to 1280) by month",
+      "description": "ចំនួនអ្នកចុចទាក់ទងសេវាគាំទ្រផ្លូវចិត្ត 1280 បែងចែកតាមខែ (Number of initial contact to 1280 by month)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2281,7 +2282,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue"
+                "color": "blue",
+                "value": null
               },
               {
                 "color": "red",
@@ -2421,7 +2423,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "ចំនួនចូលទស្សនាប្រធានបទសំណួរច្រើនជាងគេទាំង 10",
+      "description": "ចំនួនចូលទស្សនាប្រធានបទសំណួរច្រើនជាងគេទាំង 10 (Top 10 most visited topics)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2449,7 +2451,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
