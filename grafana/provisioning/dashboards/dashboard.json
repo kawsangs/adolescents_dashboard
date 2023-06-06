@@ -141,7 +141,7 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 4,
+        "w": 8,
         "x": 0,
         "y": 1
       },
@@ -223,8 +223,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 4,
-        "x": 4,
+        "w": 8,
+        "x": 8,
         "y": 1
       },
       "id": 6,
@@ -305,8 +305,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 4,
-        "x": 8,
+        "w": 8,
+        "x": 16,
         "y": 1
       },
       "id": 17,
@@ -365,385 +365,12 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "និន្នាការអ្នកចុះឈ្មោះប្រើប្រាស់កម្មវិធី \"សុខភាពយុវជន\" (User registration trend)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Total user"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "blue",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 1
-      },
-      "id": 30,
-      "options": {
-        "barRadius": 0,
-        "barWidth": 0.97,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "right",
-          "showLegend": true
-        },
-        "orientation": "auto",
-        "showValue": "auto",
-        "stacking": "none",
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
-      },
-      "pluginVersion": "9.2.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users au\n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n  AND $__timeFilter(au.registered_at)\n)\n\nSELECT \n  to_char(DATE_TRUNC('month', u.registered_at), 'Mon-YY') AS user_to_month,\n  count(*) as \"Total user\"\nFROM _app_users u\nGROUP BY DATE_TRUNC('month', u.registered_at);",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "latitude"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "facilities",
-          "timeColumn": "created_at",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "User Registration Trend",
-      "type": "barchart"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
-      "description": "ចំនួនការចូលមើលរបស់អ្នកប្រើប្រាស់ផ្សេងគ្នាក្នុងរយៈពេល 7 ថ្ងៃចុងក្រោយ (Count distinct user visits within the last 7 days)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 0,
-        "y": 5
-      },
-      "id": 18,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "/.*/",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "9.2.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT fu.id\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  count(distinct(v.app_user_id))\nFROM visits v\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE visit_date > current_date - interval '7 days'\n",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "# User visits (last 7 days)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
-      "description": "ចំនួនការចូលមើលរបស់អ្នកប្រើប្រាស់ផ្សេងគ្នាក្នុងរយៈពេល 30 ថ្ងៃចុងក្រោយ (Count distinct user visits within the last 30 days)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 4,
-        "y": 5
-      },
-      "id": 31,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "/.*/",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "9.2.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT fu.id\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  count(distinct(v.app_user_id))\nFROM visits v\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE visit_date > current_date - interval '30 days'\n",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "# User visits (last 30 days)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
-      "description": "ចំនួនការចូលមើលរបស់អ្នកប្រើប្រាស់ផ្សេងគ្នាក្នុងរយៈពេល 90 ថ្ងៃចុងក្រោយ  (Count distinct user visits within the last 90 days)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 8,
-        "y": 5
-      },
-      "id": 20,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "/.*/",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "9.2.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  count(distinct(v.app_user_id))\nFROM visits v\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE visit_date > current_date - interval '90 days'\n",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "# User visits (last 90 days)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ផែនទីអ្នកប្រើប្រាស់កម្មវិធីសុខភាពយុវជន (Map of app users)",
       "gridPos": {
         "h": 13,
         "w": 12,
         "x": 0,
-        "y": 9
+        "y": 5
       },
       "id": 13,
       "options": {
@@ -840,6 +467,252 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "description": "ចំនួនការចូលមើលរបស់អ្នកប្រើប្រាស់ផ្សេងគ្នាក្នុងរយៈពេល 7 ថ្ងៃចុងក្រោយ (Count distinct user visits within the last 7 days)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 5
+      },
+      "id": 18,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT fu.id\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  count(distinct(v.app_user_id))\nFROM visits v\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE visit_date > current_date - interval '7 days'\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "# User visits (last 7 days)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "ចំនួនការចូលមើលរបស់អ្នកប្រើប្រាស់ផ្សេងគ្នាក្នុងរយៈពេល 30 ថ្ងៃចុងក្រោយ (Count distinct user visits within the last 30 days)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 5
+      },
+      "id": 31,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT fu.id\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  count(distinct(v.app_user_id))\nFROM visits v\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE visit_date > current_date - interval '30 days'\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "# User visits (last 30 days)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "ចំនួនការចូលមើលរបស់អ្នកប្រើប្រាស់ផ្សេងគ្នាក្នុងរយៈពេល 90 ថ្ងៃចុងក្រោយ  (Count distinct user visits within the last 90 days)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 5
+      },
+      "id": 20,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  count(distinct(v.app_user_id))\nFROM visits v\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE visit_date > current_date - interval '90 days'\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "# User visits (last 90 days)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមខេត្ត (Number of app users by province)",
       "fieldConfig": {
         "defaults": {
@@ -872,7 +745,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 9,
         "w": 12,
         "x": 12,
         "y": 9
@@ -954,7 +827,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 22
+        "y": 18
       },
       "id": 28,
       "options": {
@@ -1180,7 +1053,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 22
+        "y": 18
       },
       "id": 16,
       "options": {
@@ -1330,7 +1203,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 30
+        "y": 26
       },
       "id": 8,
       "options": {
@@ -1534,7 +1407,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 30
+        "y": 26
       },
       "id": 9,
       "options": {
@@ -1834,7 +1707,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 38
+        "y": 34
       },
       "id": 4,
       "options": {
@@ -2156,7 +2029,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 38
+        "y": 34
       },
       "id": 2,
       "options": {
@@ -2303,7 +2176,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 47
+        "y": 43
       },
       "id": 23,
       "options": {
@@ -2475,7 +2348,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 47
+        "y": 43
       },
       "id": 24,
       "options": {
@@ -2600,7 +2473,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 56
+        "y": 52
       },
       "id": 22,
       "options": {
@@ -2658,6 +2531,133 @@
         }
       ],
       "title": "Top 10 Most Visited Topics",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "និន្នាការអ្នកចុះឈ្មោះប្រើប្រាស់កម្មវិធី \"សុខភាពយុវជន\" (User registration trend)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total user"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 61
+      },
+      "id": 30,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "9.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users au\n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n  AND $__timeFilter(au.registered_at)\n)\n\nSELECT \n  to_char(DATE_TRUNC('month', u.registered_at), 'Mon-YY') AS user_to_month,\n  count(*) as \"Total user\"\nFROM _app_users u\nGROUP BY DATE_TRUNC('month', u.registered_at);",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "latitude"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "facilities",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "User Registration Trend",
       "type": "barchart"
     }
   ],
