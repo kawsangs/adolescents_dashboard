@@ -144,7 +144,7 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 8,
+        "w": 4,
         "x": 0,
         "y": 1
       },
@@ -229,8 +229,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 7,
-        "x": 8,
+        "w": 4,
+        "x": 4,
         "y": 1
       },
       "id": 6,
@@ -314,8 +314,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 9,
-        "x": 15,
+        "w": 4,
+        "x": 8,
         "y": 1
       },
       "id": 17,
@@ -374,66 +374,91 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "ផែនទីអ្នកប្រើប្រាស់កម្មវិធីសុខភាពយុវជន (Map of app users)",
+      "description": "និន្នាការអ្នកចុះឈ្មោះប្រើប្រាស់កម្មវិធី \"សុខភាពយុវជន\" (User registration trend)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total user"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
       "gridPos": {
-        "h": 13,
+        "h": 8,
         "w": 12,
-        "x": 0,
-        "y": 5
+        "x": 12,
+        "y": 1
       },
-      "id": 13,
+      "id": 30,
       "options": {
-        "ant": {
-          "color": "rgb(0, 100, 255)",
-          "delay": 400,
-          "paused": false,
-          "pulseColor": "rgb(0, 0, 0)",
-          "reverse": false,
-          "weight": 5
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
         },
-        "coordinates": {
-          "customLatitudeColumnName": "",
-          "customLongitudeColumnName": ""
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
         },
-        "discardZeroOrNull": true,
-        "geospatial": {
-          "boxZoom": false,
-          "doubleClickZoom": false,
-          "geoJsonUrl": "http://localhost:3000/provinces.json",
-          "scrollWheelZoom": false,
-          "touchZoom": false
-        },
-        "heat": {
-          "fitBoundsOnLoad": false,
-          "fitBoundsOnUpdate": false
-        },
-        "hex": {
-          "colorRangeFrom": "#f7fbff",
-          "colorRangeTo": "#ff0000",
-          "opacity": 0.6,
-          "radiusRangeFrom": 5,
-          "radiusRangeTo": 12
-        },
-        "map": {
-          "centerLatitude": 12.564,
-          "centerLongitude": 104.991,
-          "tileUrlSchema": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-          "useBoundsInQuery": false,
-          "useCenterFromFirstPos": false,
-          "useCenterFromLastPos": false,
-          "zoom": 7,
-          "zoomToDataBounds": false
-        },
-        "marker": {
-          "alwaysShowTooltips": true,
-          "showOnlyLastMarker": false,
-          "size": 25,
-          "sizeLast": 25,
-          "useSecondaryIconForAllMarkers": false,
-          "useSecondaryIconForLastMarker": false
-        },
-        "viewType": "geospatial"
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
       },
+      "pluginVersion": "9.2.1",
       "targets": [
         {
           "datasource": {
@@ -444,7 +469,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  CONCAT(\n    '# User in <b>', l.name_en, '</b> (', count(*), ')'\n  ) as popup,\n  l.latitude as latitude,\n  l.longitude as longitude,\n  count(*)::text as tooltip\nFROM _app_users au\nINNER JOIN locations l ON au.province_id = l.id\nWHERE $__timeFilter(au.registered_at)\nGROUP BY l.id;\n",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users au\n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n  AND $__timeFilter(au.created_at)\n)\n\nSELECT \n  to_char(DATE_TRUNC('month', u.created_at), 'Mon-YY') AS user_to_month,\n  count(*) as \"Total user\"\nFROM _app_users u\nGROUP BY DATE_TRUNC('month', u.created_at);",
           "refId": "A",
           "select": [
             [
@@ -468,8 +493,8 @@
           ]
         }
       ],
-      "title": "# Users on Map",
-      "type": "alexandra-trackmap-panel"
+      "title": "User Registration Trend",
+      "type": "barchart"
     },
     {
       "datasource": {
@@ -502,7 +527,7 @@
       "gridPos": {
         "h": 4,
         "w": 4,
-        "x": 12,
+        "x": 0,
         "y": 5
       },
       "id": 18,
@@ -587,7 +612,7 @@
       "gridPos": {
         "h": 4,
         "w": 4,
-        "x": 16,
+        "x": 4,
         "y": 5
       },
       "id": 19,
@@ -672,7 +697,7 @@
       "gridPos": {
         "h": 4,
         "w": 4,
-        "x": 20,
+        "x": 8,
         "y": 5
       },
       "id": 20,
@@ -731,6 +756,108 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "description": "ផែនទីអ្នកប្រើប្រាស់កម្មវិធីសុខភាពយុវជន (Map of app users)",
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 0,
+        "y": 9
+      },
+      "id": 13,
+      "options": {
+        "ant": {
+          "color": "rgb(0, 100, 255)",
+          "delay": 400,
+          "paused": false,
+          "pulseColor": "rgb(0, 0, 0)",
+          "reverse": false,
+          "weight": 5
+        },
+        "coordinates": {
+          "customLatitudeColumnName": "",
+          "customLongitudeColumnName": ""
+        },
+        "discardZeroOrNull": true,
+        "geospatial": {
+          "boxZoom": false,
+          "doubleClickZoom": false,
+          "geoJsonUrl": "http://localhost:3001/provinces.json",
+          "scrollWheelZoom": false,
+          "touchZoom": false
+        },
+        "heat": {
+          "fitBoundsOnLoad": false,
+          "fitBoundsOnUpdate": false
+        },
+        "hex": {
+          "colorRangeFrom": "#f7fbff",
+          "colorRangeTo": "#ff0000",
+          "opacity": 0.6,
+          "radiusRangeFrom": 5,
+          "radiusRangeTo": 12
+        },
+        "map": {
+          "centerLatitude": 12.564,
+          "centerLongitude": 104.991,
+          "tileUrlSchema": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+          "useBoundsInQuery": false,
+          "useCenterFromFirstPos": false,
+          "useCenterFromLastPos": false,
+          "zoom": 7,
+          "zoomToDataBounds": false
+        },
+        "marker": {
+          "alwaysShowTooltips": true,
+          "showOnlyLastMarker": false,
+          "size": 25,
+          "sizeLast": 25,
+          "useSecondaryIconForAllMarkers": false,
+          "useSecondaryIconForLastMarker": false
+        },
+        "viewType": "geospatial"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  CONCAT(\n    '# User in <b>', l.name_en, '</b> (', count(*), ')'\n  ) as popup,\n  l.latitude as latitude,\n  l.longitude as longitude,\n  count(*)::text as tooltip\nFROM _app_users au\nINNER JOIN locations l ON au.province_id = l.id\nWHERE $__timeFilter(au.registered_at)\nGROUP BY l.id;\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "latitude"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "facilities",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "# Users on Map",
+      "type": "alexandra-trackmap-panel"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមខេត្ត (Number of app users by province)",
       "fieldConfig": {
         "defaults": {
@@ -761,7 +888,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
+        "h": 13,
         "w": 12,
         "x": 12,
         "y": 9
@@ -842,7 +969,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 18
+        "y": 22
       },
       "id": 28,
       "options": {
@@ -1067,7 +1194,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 18
+        "y": 22
       },
       "id": 16,
       "options": {
@@ -1217,7 +1344,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 26
+        "y": 30
       },
       "id": 8,
       "options": {
@@ -1420,7 +1547,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 26
+        "y": 30
       },
       "id": 9,
       "options": {
@@ -1719,7 +1846,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 34
+        "y": 38
       },
       "id": 4,
       "options": {
@@ -2041,7 +2168,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 34
+        "y": 38
       },
       "id": 2,
       "options": {
@@ -2187,7 +2314,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 43
+        "y": 47
       },
       "id": 23,
       "options": {
@@ -2359,7 +2486,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 43
+        "y": 47
       },
       "id": 24,
       "options": {
@@ -2483,7 +2610,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 52
+        "y": 56
       },
       "id": 22,
       "options": {
@@ -2551,7 +2678,7 @@
     "list": [
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": [
             "All"
           ],
