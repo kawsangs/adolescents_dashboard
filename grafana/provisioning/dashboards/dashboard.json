@@ -1474,7 +1474,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមមុខរបរ (Number of app users by occupation)",
+      "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមមុខរបរ (Number of app users by occupation)\nNote: N/A refers to anonymous.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1648,7 +1648,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n)\n\nSELECT\n  (\n    CASE \n      WHEN u.occupation = 0 THEN 'N/A'\n      WHEN u.occupation = 1 THEN 'Student'\n      WHEN u.occupation = 2 THEN 'Entertainment worker'\n      WHEN u.occupation = 3 THEN 'Factory worker'\n      WHEN u.occupation = 4 THEN 'Local migrant worker'\n      WHEN u.occupation = 5 THEN 'Oversea migrant worker'\n      WHEN u.occupation = 6 THEN 'Other'\n      ELSE 'Anonymous'\n    END\n  ) as occupation,\n  count(*)\nFROM app_users u\nWHERE \n  id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n  AND $__timeFilter(u.registered_at)\nGROUP BY u.occupation;",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n)\n\nSELECT\n  (\n    CASE \n      WHEN u.occupation = 0 THEN 'N/A(anonymous)'\n      WHEN u.occupation = 1 THEN 'Student'\n      WHEN u.occupation = 2 THEN 'Entertainment worker'\n      WHEN u.occupation = 3 THEN 'Factory worker'\n      WHEN u.occupation = 4 THEN 'Local migrant worker'\n      WHEN u.occupation = 5 THEN 'Oversea migrant worker'\n      WHEN u.occupation = 6 THEN 'Other'\n      ELSE 'Anonymous'\n    END\n  ) as occupation,\n  count(*)\nFROM app_users u\nWHERE \n  id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n  AND $__timeFilter(u.registered_at)\nGROUP BY u.occupation;",
           "refId": "A",
           "select": [
             [
@@ -1678,7 +1678,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមកម្រិតវប្បធម៌(Number of app users by education level)",
+      "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមកម្រិតវប្បធម៌(Number of app users by education level) \nNote: N/A refers to anonymous.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1852,7 +1852,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n)\n\nSELECT\n  (\n    CASE \n      WHEN u.education_level = 0 THEN 'N/A'\n      WHEN u.education_level = 1 THEN 'General knowledge'\n      WHEN u.education_level = 2 THEN 'University'\n      WHEN u.education_level = 3 THEN 'TVET'\n      WHEN u.education_level = 4 THEN 'Dropout student'\n      ELSE 'Anonymous'\n    END\n  ) as education_level,\n  count(*)\nFROM app_users u\nWHERE \n  id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n  AND $__timeFilter(u.registered_at)\nGROUP BY u.education_level;",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n)\n\nSELECT\n  (\n    CASE \n      WHEN u.education_level = 0 THEN 'N/A(anonymous)'\n      WHEN u.education_level = 1 THEN 'General knowledge'\n      WHEN u.education_level = 2 THEN 'University'\n      WHEN u.education_level = 3 THEN 'TVET'\n      WHEN u.education_level = 4 THEN 'Dropout student'\n      ELSE 'Anonymous'\n    END\n  ) as education_level,\n  count(*)\nFROM app_users u\nWHERE \n  id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n  AND $__timeFilter(u.registered_at)\nGROUP BY u.education_level;",
           "refId": "A",
           "select": [
             [
@@ -2848,8 +2848,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2974,8 +2973,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
-                "value": null
+                "color": "blue"
               },
               {
                 "color": "red",
@@ -3101,8 +3099,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
-                "value": null
+                "color": "blue"
               },
               {
                 "color": "red",
@@ -3203,7 +3200,7 @@
     "list": [
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": [
             "All"
           ],
@@ -3343,7 +3340,7 @@
       },
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": [
             "All"
           ],
