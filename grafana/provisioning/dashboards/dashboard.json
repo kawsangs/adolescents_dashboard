@@ -390,7 +390,7 @@
         "geospatial": {
           "boxZoom": false,
           "doubleClickZoom": false,
-          "geoJsonUrl": "http://localhost:3001/provinces.json",
+          "geoJsonUrl": "http://localhost:3000/provinces.json",
           "scrollWheelZoom": false,
           "touchZoom": false
         },
@@ -1474,6 +1474,414 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមមុខរបរ (Number of app users by occupation)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [],
+          "unit": "locale"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Page 2"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#56A64B",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "មិនកំណត់/អនាមិក"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Unknown/Anonymous"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ជនជាតិដើម"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "count"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "មានប័ណ្ណសមធម៌(ប័ណ្ណក្រីក្រ)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ជនមានពិការភាព"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 34
+      },
+      "id": 34,
+      "options": {
+        "displayLabels": [
+          "name",
+          "value"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true,
+          "values": []
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n)\n\nSELECT\n  (\n    CASE \n      WHEN u.occupation = 0 THEN 'N/A'\n      WHEN u.occupation = 1 THEN 'Student'\n      WHEN u.occupation = 2 THEN 'Entertainment worker'\n      WHEN u.occupation = 3 THEN 'Factory worker'\n      WHEN u.occupation = 4 THEN 'Local migrant worker'\n      WHEN u.occupation = 5 THEN 'Oversea migrant worker'\n      WHEN u.occupation = 6 THEN 'Other'\n      ELSE 'Anonymous'\n    END\n  ) as occupation,\n  count(*)\nFROM app_users u\nWHERE \n  id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n  AND $__timeFilter(u.registered_at)\nGROUP BY u.occupation;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "# Users by Occupation",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមកម្រិតវប្បធម៌(Number of app users by education level)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [],
+          "unit": "locale"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Page 2"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#56A64B",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "មិនកំណត់/អនាមិក"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Unknown/Anonymous"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ជនជាតិដើម"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "count"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "មានប័ណ្ណសមធម៌(ប័ណ្ណក្រីក្រ)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ជនមានពិការភាព"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 34
+      },
+      "id": 35,
+      "options": {
+        "displayLabels": [
+          "name",
+          "value"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true,
+          "values": []
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n)\n\nSELECT\n  (\n    CASE \n      WHEN u.education_level = 0 THEN 'N/A'\n      WHEN u.education_level = 1 THEN 'General knowledge'\n      WHEN u.education_level = 2 THEN 'University'\n      WHEN u.education_level = 3 THEN 'TVET'\n      WHEN u.education_level = 4 THEN 'Dropout student'\n      ELSE 'Anonymous'\n    END\n  ) as education_level,\n  count(*)\nFROM app_users u\nWHERE \n  id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n  AND $__timeFilter(u.registered_at)\nGROUP BY u.education_level;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "# Users by Education level",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "ចំនួនការចូលទស្សនាទំព័រមុខ (At least visit one among home, services, .. etc.)",
       "fieldConfig": {
         "defaults": {
@@ -1707,7 +2115,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 34
+        "y": 42
       },
       "id": 4,
       "options": {
@@ -2029,7 +2437,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 34
+        "y": 42
       },
       "id": 2,
       "options": {
@@ -2176,7 +2584,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 43
+        "y": 51
       },
       "id": 23,
       "options": {
@@ -2348,7 +2756,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 43
+        "y": 51
       },
       "id": 24,
       "options": {
@@ -2473,7 +2881,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 52
+        "y": 60
       },
       "id": 22,
       "options": {
@@ -2599,7 +3007,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 61
+        "y": 69
       },
       "id": 30,
       "options": {
@@ -2658,6 +3066,133 @@
         }
       ],
       "title": "User Registration Trend",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "និន្នាការអ្នកចុះឈ្មោះប្រើប្រាស់កម្មវិធី \"សុខភាពយុវជន\" (User registration trend)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total user"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 76
+      },
+      "id": 32,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "9.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users au\n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n  AND $__timeFilter(au.registered_at)\n)\n\nSELECT \n  to_char(DATE_TRUNC('month', u.registered_at), 'Mon-YY') AS user_to_month,\n  SUM(CASE u.gender WHEN 'male' THEN 1 ELSE 0 END) as \"Male\",\n  SUM(CASE u.gender WHEN 'female' THEN 1 ELSE 0 END) as \"Female\",\n  SUM(CASE u.gender WHEN 'lgbt' THEN 1 ELSE 0 END) as \"LGBT+\",\n  SUM(CASE u.gender WHEN 'unknown' THEN 1 ELSE 0 END) as \"Unknown\",\n  SUM(CASE u.gender WHEN null THEN 1 ELSE 0 END) as \"Anonymous\"\nFROM _app_users u\nGROUP BY DATE_TRUNC('month', u.registered_at);",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "latitude"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "facilities",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "User Registration Trend by Gender",
       "type": "barchart"
     }
   ],
