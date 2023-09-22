@@ -29,6 +29,19 @@
   "liveNow": false,
   "panels": [
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 36,
+      "panels": [],
+      "title": "App Usage Report",
+      "type": "row"
+    },
+    {
       "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
@@ -37,7 +50,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 1
       },
       "id": 15,
       "options": {
@@ -119,7 +132,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "ចំនួនសរុបអ្នកប្រើប្រាស់កម្មវិធីសុខភាពយុវជន(Total number of app users)",
+      "description": "Total number of registered app users",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -143,7 +156,7 @@
         "h": 4,
         "w": 8,
         "x": 0,
-        "y": 1
+        "y": 2
       },
       "id": 7,
       "options": {
@@ -160,13 +173,14 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.2.1",
+      "pluginVersion": "10.1.0",
       "targets": [
         {
           "datasource": {
             "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -183,6 +197,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "timeColumn": "time",
           "where": [
             {
@@ -193,7 +224,7 @@
           ]
         }
       ],
-      "title": "Total Users",
+      "title": "# App Users",
       "type": "stat"
     },
     {
@@ -201,7 +232,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "ចំនួនសរុបការចូលទស្សនាកម្មវិធី (App visits)\n(Count every app is opened)",
+      "description": "Total number of open App (count as soon as the app is opened, and count every 30-minute interval)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -225,7 +256,7 @@
         "h": 4,
         "w": 8,
         "x": 8,
-        "y": 1
+        "y": 2
       },
       "id": 6,
       "options": {
@@ -242,7 +273,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.2.1",
+      "pluginVersion": "10.1.0",
       "targets": [
         {
           "datasource": {
@@ -275,7 +306,7 @@
           ]
         }
       ],
-      "title": "Total App Opens",
+      "title": "# App Opens",
       "type": "stat"
     },
     {
@@ -283,7 +314,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "ចំនួនសរុបការចូលទស្សនាទំព័រមុខ (Main category)\nAt least visit one among home, services, .. etc.",
+      "description": "Total visits of the main category(Home page menu, and count every 30-minute interval)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -307,7 +338,7 @@
         "h": 4,
         "w": 8,
         "x": 16,
-        "y": 1
+        "y": 2
       },
       "id": 17,
       "options": {
@@ -324,7 +355,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.2.1",
+      "pluginVersion": "10.1.0",
       "targets": [
         {
           "datasource": {
@@ -357,7 +388,7 @@
           ]
         }
       ],
-      "title": "Total Visits of Main Category",
+      "title": "# Visits of Main Category",
       "type": "stat"
     },
     {
@@ -370,7 +401,7 @@
         "h": 13,
         "w": 12,
         "x": 0,
-        "y": 5
+        "y": 6
       },
       "id": 13,
       "options": {
@@ -467,7 +498,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "ចំនួនការចូលមើលរបស់អ្នកប្រើប្រាស់ផ្សេងគ្នាក្នុងរយៈពេល 7 ថ្ងៃចុងក្រោយ (Count distinct user visits within the last 7 days)",
+      "description": "Count unique user visits every 30-minute interval within the last 7 days",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -491,7 +522,7 @@
         "h": 4,
         "w": 4,
         "x": 12,
-        "y": 5
+        "y": 6
       },
       "id": 18,
       "options": {
@@ -508,7 +539,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.2.1",
+      "pluginVersion": "10.1.0",
       "targets": [
         {
           "datasource": {
@@ -541,7 +572,7 @@
           ]
         }
       ],
-      "title": "# User visits (last 7 days)",
+      "title": "# Last 7 day visits",
       "type": "stat"
     },
     {
@@ -549,7 +580,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "ចំនួនការចូលមើលរបស់អ្នកប្រើប្រាស់ផ្សេងគ្នាក្នុងរយៈពេល 30 ថ្ងៃចុងក្រោយ (Count distinct user visits within the last 30 days)",
+      "description": "Count unique user visits every 30-minute interval within the last 30 days",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -573,7 +604,7 @@
         "h": 4,
         "w": 4,
         "x": 16,
-        "y": 5
+        "y": 6
       },
       "id": 31,
       "options": {
@@ -590,7 +621,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.2.1",
+      "pluginVersion": "10.1.0",
       "targets": [
         {
           "datasource": {
@@ -623,7 +654,7 @@
           ]
         }
       ],
-      "title": "# User visits (last 30 days)",
+      "title": "# Last 30 days visits",
       "type": "stat"
     },
     {
@@ -631,7 +662,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "ចំនួនការចូលមើលរបស់អ្នកប្រើប្រាស់ផ្សេងគ្នាក្នុងរយៈពេល 90 ថ្ងៃចុងក្រោយ  (Count distinct user visits within the last 90 days)",
+      "description": "Count unique user visits every 30-minute interval within the last 90 days",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -655,7 +686,7 @@
         "h": 4,
         "w": 4,
         "x": 20,
-        "y": 5
+        "y": 6
       },
       "id": 20,
       "options": {
@@ -672,7 +703,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.2.1",
+      "pluginVersion": "10.1.0",
       "targets": [
         {
           "datasource": {
@@ -705,7 +736,7 @@
           ]
         }
       ],
-      "title": "# User visits (last 90 days)",
+      "title": "# Last 90 days visits",
       "type": "stat"
     },
     {
@@ -721,7 +752,9 @@
           },
           "custom": {
             "align": "left",
-            "displayMode": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
             "filterable": false,
             "inspect": false
           },
@@ -748,11 +781,13 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 9
+        "y": 10
       },
       "id": 26,
       "options": {
+        "cellHeight": "sm",
         "footer": {
+          "countRows": false,
           "enablePagination": true,
           "fields": "",
           "reducer": [
@@ -762,7 +797,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "9.2.1",
+      "pluginVersion": "10.1.0",
       "targets": [
         {
           "datasource": {
@@ -827,7 +862,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 18
+        "y": 19
       },
       "id": 28,
       "options": {
@@ -1053,7 +1088,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 18
+        "y": 19
       },
       "id": 16,
       "options": {
@@ -1086,6 +1121,7 @@
             "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1102,6 +1138,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "timeColumn": "time",
           "where": [
             {
@@ -1203,7 +1256,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 26
+        "y": 27
       },
       "id": 8,
       "options": {
@@ -1407,7 +1460,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 26
+        "y": 27
       },
       "id": 9,
       "options": {
@@ -1611,7 +1664,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 34
+        "y": 35
       },
       "id": 34,
       "options": {
@@ -1815,7 +1868,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 34
+        "y": 35
       },
       "id": 35,
       "options": {
@@ -2115,7 +2168,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 42
+        "y": 43
       },
       "id": 4,
       "options": {
@@ -2203,6 +2256,9 @@
             "lineWidth": 1,
             "scaleDistribution": {
               "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
             }
           },
           "mappings": [],
@@ -2437,12 +2493,13 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 42
+        "y": 43
       },
       "id": 2,
       "options": {
         "barRadius": 0,
         "barWidth": 0.97,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
@@ -2584,7 +2641,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 51
+        "y": 52
       },
       "id": 23,
       "options": {
@@ -2672,6 +2729,9 @@
             "lineWidth": 1,
             "scaleDistribution": {
               "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
             }
           },
           "mappings": [],
@@ -2756,12 +2816,13 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 51
+        "y": 52
       },
       "id": 24,
       "options": {
         "barRadius": 0,
         "barWidth": 0.97,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
@@ -2841,6 +2902,9 @@
             "lineWidth": 1,
             "scaleDistribution": {
               "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
             }
           },
           "mappings": [],
@@ -2848,7 +2912,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -2880,12 +2945,13 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 60
+        "y": 61
       },
       "id": 22,
       "options": {
         "barRadius": 0,
         "barWidth": 0.97,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
@@ -2966,6 +3032,9 @@
             "lineWidth": 1,
             "scaleDistribution": {
               "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
             }
           },
           "mappings": [],
@@ -2973,7 +3042,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue"
+                "color": "blue",
+                "value": null
               },
               {
                 "color": "red",
@@ -3005,12 +3075,13 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 69
+        "y": 70
       },
       "id": 30,
       "options": {
         "barRadius": 0,
         "barWidth": 0.97,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
@@ -3092,6 +3163,9 @@
             "lineWidth": 1,
             "scaleDistribution": {
               "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
             }
           },
           "mappings": [],
@@ -3099,7 +3173,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue"
+                "color": "blue",
+                "value": null
               },
               {
                 "color": "red",
@@ -3131,12 +3206,13 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 76
+        "y": 77
       },
       "id": 32,
       "options": {
         "barRadius": 0,
         "barWidth": 0.97,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
@@ -3191,16 +3267,287 @@
       ],
       "title": "User Registration Trend by Gender",
       "type": "barchart"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 84
+      },
+      "id": 37,
+      "panels": [],
+      "title": "Survey Report",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 85
+      },
+      "id": 38,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT \n    *,\n    (\n      CASE \n        WHEN gender = 'male' THEN 'Male'\n        WHEN gender = 'female' THEN 'Female'\n        WHEN gender = 'lgbt' THEN 'LGBT+'\n        WHEN gender = 'unknown' THEN 'Unknown'\n        ELSE 'Anonymous'\n      END\n    ) as gender_en\n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n),\ntracking_questions AS (\n  SELECT \n    q.id, \n    s.topic_id as topic_id,\n    ROW_NUMBER() OVER(PARTITION BY s.topic_id ORDER BY q.display_order ASC) AS row\n  FROM questions q\n  JOIN sections s ON q.section_id = s.id\n  WHERE q.tracking = true\n  ORDER BY q.display_order\n),\ntracking_answers AS (\n  SELECT \n    q.id,\n    q.topic_id,\n    t.name,\n    sa.value,\n    q.row\n  FROM survey_answers sa\n  JOIN tracking_questions q ON sa.question_id = q.id\n  JOIN taggings tg ON tg.taggable_id = q.id AND tg.taggable_type = 'Question'\n  JOIN tags t ON tg.tag_id = t.id\n  JOIN surveys s ON sa.survey_id = s.id\n  JOIN _app_users au ON s.app_user_id = au.id\n  WHERE\n    $__timeFilter(s.quizzed_at)\n),\nparticipants AS (\n  SELECT s.* \n  FROM surveys s\n  JOIN _app_users au ON s.app_user_id = au.id\n  WHERE\n    $__timeFilter(s.quizzed_at)\n)\n\nSELECT \n  f.name_en AS \"Survey\",\n  (select sum(n.success_count) from mobile_notifications n where n.topic_id = f.id) AS \"# of push notifications\",\n  (select count(*) from participants p where p.topic_id = f.id) AS \"# of participation\",\n  (\n    SELECT concat(sa.name, ' (', ARRAY_TO_STRING(array_agg(sa.answer), ', '), ')')\n    FROM (\n      SELECT ta.name, concat(ta.value, '=', count(*)) as answer\n      FROM tracking_answers ta\n      WHERE row = 1 AND topic_id = f.id\n      GROUP BY ta.name, ta.value\n    ) sa\n    GROUP BY sa.name\n  ) AS \"1st tracking\",\n  (\n    SELECT concat(sa.name, ' (', ARRAY_TO_STRING(array_agg(sa.answer), ', '), ')')\n    FROM (\n      SELECT ta.name, concat(ta.value, '=', count(*)) as answer\n      FROM tracking_answers ta\n      WHERE row = 2 AND topic_id = f.id\n      GROUP BY ta.name, ta.value\n    ) sa\n    GROUP BY sa.name\n  ) AS \"2nd tracking\"\nFROM topics f\nWHERE \n  f.type='Topics::SurveyForm' \n  AND f.published_at IS NOT NULL",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Survey Result",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 93
+      },
+      "id": 39,
+      "options": {
+        "displayLabels": [
+          "name",
+          "percent",
+          "value"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT \n    *,\n    (\n      CASE \n        WHEN gender = 'male' THEN 'Male'\n        WHEN gender = 'female' THEN 'Female'\n        WHEN gender = 'lgbt' THEN 'LGBT+'\n        WHEN gender = 'unknown' THEN 'Unknown'\n        ELSE 'Anonymous'\n      END\n    ) as gender_en\n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  p.name_en,\n  count(*)\nFROM visits v\nJOIN pages p ON v.page_id = p.id\nINNER JOIN _app_users au ON v.app_user_id = au.id\nWHERE \n  p.parent_id is null\n  AND p.code IN ('open_remote_notification', 'open_in_app_notification')\n  AND $__timeFilter(v.visit_date)\nGROUP BY p.name_en",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "# Open notification",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 93
+      },
+      "id": 40,
+      "options": {
+        "displayLabels": [
+          "name",
+          "percent",
+          "value"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT \n    *,\n    (\n      CASE \n        WHEN gender = 'male' THEN 'Male'\n        WHEN gender = 'female' THEN 'Female'\n        WHEN gender = 'lgbt' THEN 'LGBT+'\n        WHEN gender = 'unknown' THEN 'Unknown'\n        ELSE 'Anonymous'\n      END\n    ) as gender_en\n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT \n  INITCAP(au.gender_en),\n  count(*)\nFROM surveys s\nJOIN topics f ON s.topic_id = f.id\nJOIN _app_users au ON s.app_user_id = au.id\nWHERE\n  $__timeFilter(s.quizzed_at)\n  AND f.published_at IS NOT null\n  AND f.type = 'Topics::SurveyForm'\nGROUP BY au.gender_en;",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "# Participation by gender",
+      "type": "piechart"
     }
   ],
-  "schemaVersion": 37,
+  "refresh": "",
+  "schemaVersion": 38,
   "style": "dark",
   "tags": [],
   "templating": {
     "list": [
       {
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
@@ -3229,7 +3576,7 @@
       {
         "allValue": "-1 AND 99",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "All",
           "value": "$__all"
         },
@@ -3340,7 +3687,7 @@
       },
       {
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
