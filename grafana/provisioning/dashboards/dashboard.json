@@ -42,10 +42,6 @@
       "type": "row"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -128,10 +124,6 @@
       "type": "yesoreyeram-boomtheme-panel"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "Total number of registered app users",
       "fieldConfig": {
         "defaults": {
@@ -228,10 +220,6 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "Total number of open App (count as soon as the app is opened, and count every 30-minute interval)",
       "fieldConfig": {
         "defaults": {
@@ -310,10 +298,6 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "Total visits of the main category(Home page menu, and count every 30-minute interval)",
       "fieldConfig": {
         "defaults": {
@@ -392,10 +376,6 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ផែនទីអ្នកប្រើប្រាស់កម្មវិធីសុខភាពយុវជន (Map of app users)",
       "gridPos": {
         "h": 13,
@@ -494,10 +474,6 @@
       "type": "alexandra-trackmap-panel"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "Count unique user visits every 30-minute interval within the last 7 days",
       "fieldConfig": {
         "defaults": {
@@ -594,10 +570,6 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "Count unique user visits every 30-minute interval within the last 30 days",
       "fieldConfig": {
         "defaults": {
@@ -694,10 +666,6 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "Count unique user visits every 30-minute interval within the last 90 days",
       "fieldConfig": {
         "defaults": {
@@ -794,10 +762,6 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមខេត្ត (Number of app users by province)",
       "fieldConfig": {
         "defaults": {
@@ -890,10 +854,6 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាម Platform (Number of app user by platform)",
       "fieldConfig": {
         "defaults": {
@@ -980,10 +940,6 @@
       "type": "piechart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមភេទ (Number of app users by gender)",
       "fieldConfig": {
         "defaults": {
@@ -1223,10 +1179,6 @@
       "type": "piechart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមអាយុ (Number of app users by age range)",
       "fieldConfig": {
         "defaults": {
@@ -1373,10 +1325,6 @@
       "type": "piechart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមលក្ខណៈសម្បត្តិ (Number of app users by profile)",
       "fieldConfig": {
         "defaults": {
@@ -1577,10 +1525,6 @@
       "type": "piechart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមមុខរបរ (Number of app users by occupation)\nNote: N/A refers to anonymous.",
       "fieldConfig": {
         "defaults": {
@@ -1781,10 +1725,6 @@
       "type": "piechart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមកម្រិតវប្បធម៌(Number of app users by education level) \nNote: N/A refers to anonymous.",
       "fieldConfig": {
         "defaults": {
@@ -1985,10 +1925,6 @@
       "type": "piechart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ចំនួនការចូលទស្សនាទំព័រមុខ (At least visit one among home, services, .. etc.)",
       "fieldConfig": {
         "defaults": {
@@ -2170,7 +2106,7 @@
         ]
       },
       "gridPos": {
-        "h": 9,
+        "h": 8,
         "w": 12,
         "x": 0,
         "y": 43
@@ -2254,10 +2190,152 @@
       "type": "piechart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
+      "description": "ចំនួនអ្នកចុចទាក់ទងសេវាគាំទ្រផ្លូវចិត្ត 1280 (# of initial contact to 1280)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [],
+          "unit": "locale"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Telegram"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Hotline"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Messenger"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SMS"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 43
+      },
+      "id": 23,
+      "options": {
+        "displayLabels": [
+          "name",
+          "value"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true,
+          "values": []
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  p.name_km as page_name,\n  count(*)\nFROM visits v\nINNER JOIN pages p ON v.page_id = p.id\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE \n  p.code in ('messenger', 'telegram', 'phone', 'sms')\n  AND $__timeFilter(v.visit_date)\nGROUP BY p.name_km;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Initial Contact to 1280",
+      "type": "piechart"
+    },
+    {
       "description": "ចំនួនការចូលទស្សនាទំព័រមុខបែងចែកតាមខែ (At least visit one among home, services, .. etc.)",
       "fieldConfig": {
         "defaults": {
@@ -2439,9 +2517,9 @@
       },
       "gridPos": {
         "h": 9,
-        "w": 12,
-        "x": 12,
-        "y": 43
+        "w": 24,
+        "x": 0,
+        "y": 51
       },
       "id": 2,
       "options": {
@@ -2462,7 +2540,7 @@
           "mode": "single",
           "sort": "none"
         },
-        "xTickLabelRotation": 0,
+        "xTickLabelRotation": -45,
         "xTickLabelSpacing": 0
       },
       "pluginVersion": "9.0.6",
@@ -2520,160 +2598,6 @@
       "type": "barchart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
-      "description": "ចំនួនអ្នកចុចទាក់ទងសេវាគាំទ្រផ្លូវចិត្ត 1280 (# of initial contact to 1280)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            }
-          },
-          "mappings": [],
-          "unit": "locale"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Telegram"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "blue",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Hotline"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Messenger"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "purple",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "SMS"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "orange",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 0,
-        "y": 52
-      },
-      "id": 23,
-      "options": {
-        "displayLabels": [
-          "name",
-          "value"
-        ],
-        "legend": {
-          "displayMode": "list",
-          "placement": "right",
-          "showLegend": true,
-          "values": []
-        },
-        "pieType": "donut",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  p.name_km as page_name,\n  count(*)\nFROM visits v\nINNER JOIN pages p ON v.page_id = p.id\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE \n  p.code in ('messenger', 'telegram', 'phone', 'sms')\n  AND $__timeFilter(v.visit_date)\nGROUP BY p.name_km;",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "Initial Contact to 1280",
-      "type": "piechart"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ចំនួនអ្នកចុចទាក់ទងសេវាគាំទ្រផ្លូវចិត្ត 1280 បែងចែកតាមខែ (Number of initial contact to 1280 by month)",
       "fieldConfig": {
         "defaults": {
@@ -2780,9 +2704,9 @@
       },
       "gridPos": {
         "h": 9,
-        "w": 12,
-        "x": 12,
-        "y": 52
+        "w": 24,
+        "x": 0,
+        "y": 60
       },
       "id": 24,
       "options": {
@@ -2803,7 +2727,7 @@
           "mode": "single",
           "sort": "none"
         },
-        "xTickLabelRotation": 0,
+        "xTickLabelRotation": -45,
         "xTickLabelSpacing": 0
       },
       "pluginVersion": "9.0.6",
@@ -2843,10 +2767,6 @@
       "type": "barchart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ចំនួនចូលទស្សនាប្រធានបទសំណួរច្រើនជាងគេទាំង 10 (Top 10 most visited topics)",
       "fieldConfig": {
         "defaults": {
@@ -2911,7 +2831,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 61
+        "y": 69
       },
       "id": 22,
       "options": {
@@ -2973,10 +2893,6 @@
       "type": "barchart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "និន្នាការអ្នកចុះឈ្មោះប្រើប្រាស់កម្មវិធី \"សុខភាពយុវជន\" (User registration trend)",
       "fieldConfig": {
         "defaults": {
@@ -3038,10 +2954,10 @@
         ]
       },
       "gridPos": {
-        "h": 7,
+        "h": 9,
         "w": 24,
         "x": 0,
-        "y": 70
+        "y": 78
       },
       "id": 30,
       "options": {
@@ -3052,7 +2968,7 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "right",
+          "placement": "bottom",
           "showLegend": true
         },
         "orientation": "auto",
@@ -3062,7 +2978,7 @@
           "mode": "single",
           "sort": "none"
         },
-        "xTickLabelRotation": 0,
+        "xTickLabelRotation": -45,
         "xTickLabelSpacing": 0
       },
       "pluginVersion": "9.2.1",
@@ -3104,10 +3020,6 @@
       "type": "barchart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "និន្នាការអ្នកចុះឈ្មោះប្រើប្រាស់កម្មវិធី \"សុខភាពយុវជន\" (User registration trend)",
       "fieldConfig": {
         "defaults": {
@@ -3169,10 +3081,10 @@
         ]
       },
       "gridPos": {
-        "h": 7,
+        "h": 9,
         "w": 24,
         "x": 0,
-        "y": 77
+        "y": 87
       },
       "id": 32,
       "options": {
@@ -3183,7 +3095,7 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "right",
+          "placement": "bottom",
           "showLegend": true
         },
         "orientation": "auto",
@@ -3193,7 +3105,7 @@
           "mode": "single",
           "sort": "none"
         },
-        "xTickLabelRotation": 0,
+        "xTickLabelRotation": -45,
         "xTickLabelSpacing": 0
       },
       "pluginVersion": "9.2.1",
@@ -3240,7 +3152,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 84
+        "y": 96
       },
       "id": 37,
       "panels": [],
@@ -3248,10 +3160,6 @@
       "type": "row"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3285,7 +3193,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 85
+        "y": 97
       },
       "id": 38,
       "options": {
@@ -3335,10 +3243,6 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3359,7 +3263,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 93
+        "y": 105
       },
       "id": 39,
       "options": {
@@ -3420,10 +3324,6 @@
       "type": "piechart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3444,7 +3344,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 93
+        "y": 105
       },
       "id": 40,
       "options": {
