@@ -21,6 +21,7 @@
       }
     ]
   },
+  "description": "",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
@@ -124,6 +125,10 @@
       "type": "yesoreyeram-boomtheme-panel"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "Total number of registered app users",
       "fieldConfig": {
         "defaults": {
@@ -177,7 +182,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n)\n\nSELECT count(*) as count\nFROM app_users au\nWHERE \n  id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)    \n  )\n  AND $__timeFilter(au.registered_at)\n\n\n",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n)\n\nSELECT count(*) as count\nFROM app_users au\nWHERE \n  id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n  AND $__timeFilter(au.registered_at)\n  \n  \n",
           "refId": "A",
           "select": [
             [
@@ -220,6 +225,10 @@
       "type": "stat"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "Total number of open App (count as soon as the app is opened, and count every 30-minute interval)",
       "fieldConfig": {
         "defaults": {
@@ -268,11 +277,12 @@
             "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  COUNT(*)\nFROM visits v\nINNER JOIN pages p ON v.page_id = p.id\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE \n  p.parent_id is null\n  AND p.code = 'app_visit'\n  AND $__timeFilter(v.visit_date)\n",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  COUNT(*)\nFROM visits v\nINNER JOIN pages p ON v.page_id = p.id\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE \n  p.parent_id is null\n  AND p.code = 'app_visit'\n  AND $__timeFilter(v.visit_date)\n",
           "refId": "A",
           "select": [
             [
@@ -284,6 +294,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "timeColumn": "time",
           "where": [
             {
@@ -294,10 +321,14 @@
           ]
         }
       ],
-      "title": "# App Opens",
+      "title": "# App Accessed",
       "type": "stat"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "Total visits of the main category(Home page menu, and count every 30-minute interval)",
       "fieldConfig": {
         "defaults": {
@@ -346,11 +377,12 @@
             "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  COUNT(*)\nFROM visits v\nINNER JOIN pages p ON v.page_id = p.id\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE \n  p.parent_id is null\n  AND p.code != 'app_visit'\n  AND $__timeFilter(v.visit_date)",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  COUNT(*)\nFROM visits v\nINNER JOIN pages p ON v.page_id = p.id\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE \n  p.parent_id is null\n  AND p.code != 'app_visit'\n  AND $__timeFilter(v.visit_date)",
           "refId": "A",
           "select": [
             [
@@ -362,6 +394,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "timeColumn": "time",
           "where": [
             {
@@ -376,6 +425,10 @@
       "type": "stat"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "ផែនទីអ្នកប្រើប្រាស់កម្មវិធីសុខភាពយុវជន (Map of app users)",
       "gridPos": {
         "h": 13,
@@ -442,11 +495,12 @@
             "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  CONCAT(\n    '# User in <b>', l.name_en, '</b> (', count(*), ')'\n  ) as popup,\n  l.latitude as latitude,\n  l.longitude as longitude,\n  count(*)::text as tooltip\nFROM _app_users au\nINNER JOIN locations l ON au.province_id = l.id\nWHERE $__timeFilter(au.registered_at)\nGROUP BY l.id;\n",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  CONCAT(\n    '# User in <b>', l.name_en, '</b> (', count(*), ')'\n  ) as popup,\n  l.latitude as latitude,\n  l.longitude as longitude,\n  count(*)::text as tooltip\nFROM _app_users au\nINNER JOIN locations l ON au.province_id = l.id\nWHERE $__timeFilter(au.registered_at)\nGROUP BY l.id;\n",
           "refId": "A",
           "select": [
             [
@@ -458,6 +512,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "facilities",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -474,6 +545,10 @@
       "type": "alexandra-trackmap-panel"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "Count unique user visits every 30-minute interval within the last 7 days",
       "fieldConfig": {
         "defaults": {
@@ -527,7 +602,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT fu.id\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  count(distinct(v.app_user_id))\nFROM visits v\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE visit_date > current_date - interval '7 days'\n",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT fu.id\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n),\n_end_date AS (\n  select TIMESTAMP 'epoch' + (SELECT $__to) * INTERVAL '1 millisecond'\n),\n_start_date AS (\n  select TIMESTAMP 'epoch' + (SELECT $__to - 604800000) * INTERVAL '1 millisecond'\n)\n\nSELECT\n  count(distinct(v.app_user_id))\nFROM visits v\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE visit_date BETWEEN (select * from _start_date) AND (select * from _end_date)\nAND $__timeFilter(visit_date)",
           "refId": "A",
           "select": [
             [
@@ -570,6 +645,10 @@
       "type": "stat"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "Count unique user visits every 30-minute interval within the last 30 days",
       "fieldConfig": {
         "defaults": {
@@ -623,7 +702,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT fu.id\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  count(distinct(v.app_user_id))\nFROM visits v\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE visit_date > current_date - interval '30 days'\n",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT fu.id\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n),\n_end_date AS (\n  select TIMESTAMP 'epoch' + (SELECT $__to) * INTERVAL '1 millisecond'\n),\n_start_date AS (\n  select TIMESTAMP 'epoch' + (SELECT $__to - 2592000000) * INTERVAL '1 millisecond'\n)\n\nSELECT\n  count(distinct(v.app_user_id))\nFROM visits v\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE visit_date BETWEEN (select * from _start_date) AND (select * from _end_date)\nAND $__timeFilter(visit_date)",
           "refId": "A",
           "select": [
             [
@@ -666,6 +745,10 @@
       "type": "stat"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "Count unique user visits every 30-minute interval within the last 90 days",
       "fieldConfig": {
         "defaults": {
@@ -719,7 +802,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT fu.id\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  count(distinct(v.app_user_id))\nFROM visits v\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE visit_date > current_date - interval '90 days'\n",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT fu.id\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n),\n_end_date AS (\n  select TIMESTAMP 'epoch' + (SELECT $__to) * INTERVAL '1 millisecond'\n),\n_start_date AS (\n  select TIMESTAMP 'epoch' + (SELECT $__to - 7776000000) * INTERVAL '1 millisecond'\n)\n\nSELECT\n  count(distinct(v.app_user_id))\nFROM visits v\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE visit_date BETWEEN (select * from _start_date) AND (select * from _end_date)\nAND $__timeFilter(visit_date)",
           "refId": "A",
           "select": [
             [
@@ -762,6 +845,10 @@
       "type": "stat"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមខេត្ត (Number of app users by province)",
       "fieldConfig": {
         "defaults": {
@@ -822,11 +909,12 @@
             "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  concat_ws(' ', l.name_en, '(', l.name_km, ')') as \"Province\",\n  count(*) as \"# of users\"\nFROM _app_users au\nINNER JOIN locations l ON au.province_id = l.id\nWHERE $__timeFilter(au.registered_at)\nGROUP BY l.id\nORDER BY count(*) DESC;",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  concat_ws(' ', l.name_en, '(', l.name_km, ')') as \"Province\",\n  count(*) as \"# of users\"\nFROM _app_users au\nINNER JOIN locations l ON au.province_id = l.id\nWHERE $__timeFilter(au.registered_at)\nGROUP BY l.id\nORDER BY count(*) DESC;",
           "refId": "A",
           "select": [
             [
@@ -838,6 +926,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "facilities",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -854,6 +959,10 @@
       "type": "table"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាម Platform (Number of app user by platform)",
       "fieldConfig": {
         "defaults": {
@@ -908,11 +1017,12 @@
             "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT \n    *\n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT \n  (CASE WHEN platform = 1 THEN 'Android' ELSE 'iOs' END) as platform, \n  count(*)\nFROM _app_users u\nWHERE $__timeFilter(u.registered_at)\nGROUP BY u.platform",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n),\n_app_users AS (\n  SELECT \n    *\n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT \n  (CASE WHEN platform = 1 THEN 'Android' ELSE 'iOs' END) as platform, \n  count(*)\nFROM _app_users u\nWHERE $__timeFilter(u.registered_at)\nGROUP BY u.platform",
           "refId": "A",
           "select": [
             [
@@ -924,6 +1034,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "facilities",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -940,6 +1067,10 @@
       "type": "piechart"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមភេទ (Number of app users by gender)",
       "fieldConfig": {
         "defaults": {
@@ -1136,7 +1267,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT \n    *,\n    (\n      CASE \n        WHEN gender = 'male' THEN 'Male'\n        WHEN gender = 'female' THEN 'Female'\n        WHEN gender = 'lgbt' THEN 'LGBT+'\n        WHEN gender = 'unknown' THEN 'Unknown'\n        ELSE 'Anonymous'\n      END\n    ) as gender_en\n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT u.gender_en, count(*)\nFROM _app_users u\nWHERE $__timeFilter(u.registered_at)\nGROUP BY u.gender_en",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n),\n_app_users AS (\n  SELECT \n    *,\n    (\n      CASE \n        WHEN gender = 'male' THEN 'Male'\n        WHEN gender = 'female' THEN 'Female'\n        WHEN gender = 'lgbt' THEN 'LGBT+'\n        WHEN gender = 'unknown' THEN 'Unknown'\n        ELSE 'Anonymous'\n      END\n    ) as gender_en\n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT u.gender_en, count(*)\nFROM _app_users u\nWHERE $__timeFilter(u.registered_at)\nGROUP BY u.gender_en",
           "refId": "A",
           "select": [
             [
@@ -1179,6 +1310,10 @@
       "type": "piechart"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមអាយុ (Number of app users by age range)",
       "fieldConfig": {
         "defaults": {
@@ -1295,11 +1430,12 @@
             "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT \n    *,\n    (\n      CASE \n        WHEN age > 30 THEN 'Age > 30'\n        WHEN age > 24 THEN 'Age 25 - 30'\n        WHEN age > 17 THEN 'Age 18 - 24'\n        WHEN age > 14 THEN 'Age 15 - 17'\n        WHEN age > 9 THEN 'Age 10 - 14'\n        WHEN age > 0 THEN 'Age < 10'\n        ELSE 'Anonymous'\n      END\n    ) as age_range\n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\nSELECT\n  au.age_range,\n  COUNT(*)\nFROM _app_users au\nWHERE\n  $__timeFilter(au.registered_at)\nGROUP BY au.age_range\n",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n),\n_app_users AS (\n  SELECT \n    *,\n    (\n      CASE \n        WHEN age > 30 THEN 'Age > 30'\n        WHEN age > 24 THEN 'Age 25 - 30'\n        WHEN age > 17 THEN 'Age 18 - 24'\n        WHEN age > 14 THEN 'Age 15 - 17'\n        WHEN age > 9 THEN 'Age 10 - 14'\n        WHEN age > 0 THEN 'Age < 10'\n        ELSE 'Anonymous'\n      END\n    ) as age_range\n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\nSELECT\n  au.age_range,\n  COUNT(*)\nFROM _app_users au\nWHERE\n  $__timeFilter(au.registered_at)\nGROUP BY au.age_range\n",
           "refId": "A",
           "select": [
             [
@@ -1311,6 +1447,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "timeColumn": "time",
           "where": [
             {
@@ -1325,6 +1478,10 @@
       "type": "piechart"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមលក្ខណៈសម្បត្តិ (Number of app users by profile)",
       "fieldConfig": {
         "defaults": {
@@ -1495,11 +1652,12 @@
             "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n),\n_profile_users AS (\n  SELECT\n    (CASE WHEN c.id is not null THEN c.name_en ELSE 'Unknown/Anonymous' END) as profile\n  FROM _app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE $__timeFilter(u.registered_at)\n)\n\nSELECT \n  pu.profile,\n  count(*)\nFROM _profile_users pu\nGROUP BY pu.profile",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n),\n_profile_users AS (\n  SELECT\n    (CASE WHEN c.id is not null THEN c.name_en ELSE 'Unknown/Anonymous' END) as profile\n  FROM _app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE $__timeFilter(u.registered_at)\n)\n\nSELECT \n  pu.profile,\n  count(*)\nFROM _profile_users pu\nGROUP BY pu.profile",
           "refId": "A",
           "select": [
             [
@@ -1511,6 +1669,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "timeColumn": "time",
           "where": [
             {
@@ -1525,6 +1700,10 @@
       "type": "piechart"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមមុខរបរ (Number of app users by occupation)\nNote: N/A refers to anonymous.",
       "fieldConfig": {
         "defaults": {
@@ -1695,11 +1874,12 @@
             "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n)\n\nSELECT\n  (\n    CASE \n      WHEN u.occupation = 0 THEN 'N/A(anonymous)'\n      WHEN u.occupation = 1 THEN 'Student'\n      WHEN u.occupation = 2 THEN 'Entertainment worker'\n      WHEN u.occupation = 3 THEN 'Factory worker'\n      WHEN u.occupation = 4 THEN 'Local migrant worker'\n      WHEN u.occupation = 5 THEN 'Oversea migrant worker'\n      WHEN u.occupation = 6 THEN 'Other'\n      ELSE 'Anonymous'\n    END\n  ) as occupation,\n  count(*)\nFROM app_users u\nWHERE \n  id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n  AND $__timeFilter(u.registered_at)\nGROUP BY u.occupation;",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n)\n\nSELECT\n  (\n    CASE \n      WHEN u.occupation = 0 THEN 'N/A(anonymous)'\n      WHEN u.occupation = 1 THEN 'Student'\n      WHEN u.occupation = 2 THEN 'Entertainment worker'\n      WHEN u.occupation = 3 THEN 'Factory worker'\n      WHEN u.occupation = 4 THEN 'Local migrant worker'\n      WHEN u.occupation = 5 THEN 'Oversea migrant worker'\n      WHEN u.occupation = 6 THEN 'Other'\n      ELSE 'Anonymous'\n    END\n  ) as occupation,\n  count(*)\nFROM app_users u\nWHERE \n  id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n  AND $__timeFilter(u.registered_at)\nGROUP BY u.occupation;",
           "refId": "A",
           "select": [
             [
@@ -1711,6 +1891,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "timeColumn": "time",
           "where": [
             {
@@ -1725,6 +1922,10 @@
       "type": "piechart"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមកម្រិតវប្បធម៌(Number of app users by education level) \nNote: N/A refers to anonymous.",
       "fieldConfig": {
         "defaults": {
@@ -1895,11 +2096,12 @@
             "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n)\n\nSELECT\n  (\n    CASE \n      WHEN u.education_level = 0 THEN 'N/A(anonymous)'\n      WHEN u.education_level = 1 THEN 'General knowledge'\n      WHEN u.education_level = 2 THEN 'University'\n      WHEN u.education_level = 3 THEN 'TVET'\n      WHEN u.education_level = 4 THEN 'Dropout student'\n      ELSE 'Anonymous'\n    END\n  ) as education_level,\n  count(*)\nFROM app_users u\nWHERE \n  id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n  AND $__timeFilter(u.registered_at)\nGROUP BY u.education_level;",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n)\n\nSELECT\n  (\n    CASE \n      WHEN u.education_level = 0 THEN 'N/A(anonymous)'\n      WHEN u.education_level = 1 THEN 'General knowledge'\n      WHEN u.education_level = 2 THEN 'University'\n      WHEN u.education_level = 3 THEN 'TVET'\n      WHEN u.education_level = 4 THEN 'Dropout student'\n      ELSE 'Anonymous'\n    END\n  ) as education_level,\n  count(*)\nFROM app_users u\nWHERE \n  id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n  AND $__timeFilter(u.registered_at)\nGROUP BY u.education_level;",
           "refId": "A",
           "select": [
             [
@@ -1911,6 +2113,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "timeColumn": "time",
           "where": [
             {
@@ -1925,6 +2144,10 @@
       "type": "piechart"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "ចំនួនការចូលទស្សនាទំព័រមុខ (At least visit one among home, services, .. etc.)",
       "fieldConfig": {
         "defaults": {
@@ -2147,7 +2370,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n),\nmain_page_codes AS (\n  SELECT * FROM (VALUES('video'), ('service'), ('catg_lvl_1_reprod_health'), ('help'), ('catg_lvl_1_understanding_gender'), ('catg_lvl_1_drug_and_alcohol_prevention'), ('catg_lvl_1_understanding_hiv_and_stis'), ('catg_lvl_1_youth_migration'), ('mental_support')) t(c)\n)\n\nSELECT\n  count(*),\n  p.name_en as page_name\nFROM visits v\nINNER JOIN pages p ON v.page_id = p.id\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE \n  p.parent_id is null\n  AND p.viz_code in (SELECT * FROM main_page_codes)\n  AND $__timeFilter(v.visit_date)\nGROUP BY p.viz_code, p.name_en\nORDER BY array_position(ARRAY(SELECT * FROM main_page_codes), p.viz_code);",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n),\nmain_page_codes AS (\n  SELECT * FROM (VALUES('video'), ('service'), ('catg_lvl_1_reprod_health'), ('help'), ('catg_lvl_1_understanding_gender'), ('catg_lvl_1_drug_and_alcohol_prevention'), ('catg_lvl_1_understanding_hiv_and_stis'), ('catg_lvl_1_youth_migration'), ('mental_support')) t(c)\n)\n\nSELECT\n  count(*),\n  p.name_en as page_name\nFROM visits v\nINNER JOIN pages p ON v.page_id = p.id\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE \n  p.parent_id is null\n  AND p.viz_code in (SELECT * FROM main_page_codes)\n  AND $__timeFilter(v.visit_date)\nGROUP BY p.viz_code, p.name_en\nORDER BY array_position(ARRAY(SELECT * FROM main_page_codes), p.viz_code);",
           "refId": "A",
           "select": [
             [
@@ -2190,6 +2413,10 @@
       "type": "piechart"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "ចំនួនអ្នកចុចទាក់ទងសេវាគាំទ្រផ្លូវចិត្ត 1280 (# of initial contact to 1280)",
       "fieldConfig": {
         "defaults": {
@@ -2306,11 +2533,12 @@
             "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  p.name_km as page_name,\n  count(*)\nFROM visits v\nINNER JOIN pages p ON v.page_id = p.id\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE \n  p.code in ('messenger', 'telegram', 'phone', 'sms')\n  AND $__timeFilter(v.visit_date)\nGROUP BY p.name_km;",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  p.name_km as page_name,\n  count(*)\nFROM visits v\nINNER JOIN pages p ON v.page_id = p.id\nINNER JOIN _app_users u ON v.app_user_id = u.id\nWHERE \n  p.code in ('messenger', 'telegram', 'phone', 'sms')\n  AND $__timeFilter(v.visit_date)\nGROUP BY p.name_km;",
           "refId": "A",
           "select": [
             [
@@ -2322,6 +2550,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "timeColumn": "time",
           "where": [
             {
@@ -2336,6 +2581,10 @@
       "type": "piechart"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "ចំនួនការចូលទស្សនាទំព័រមុខបែងចែកតាមខែ (At least visit one among home, services, .. etc.)",
       "fieldConfig": {
         "defaults": {
@@ -2555,7 +2804,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n),\n_visit_pages AS (\n  SELECT\n    v.visit_date,\n    p.viz_code\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.parent_id is null\n    AND p.viz_code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n)\n\nSELECT \n  to_char(DATE_TRUNC('month', v.visit_date), 'Mon-YY') AS visit_to_month,\n  count(case when v.viz_code='video' then 1 end) AS \"Educational Video\",\n  count(case when v.viz_code='service' then 1 end) AS \"Health Clinic\",\n  count(case when v.viz_code='catg_lvl_1_reprod_health' then 1 end) AS \"Understand Reproductive Health\",\n  count(case when v.viz_code='help' then 1 end) AS \"FAQ\",\n  count(case when v.viz_code='catg_lvl_1_understanding_gender' then 1 end) AS \"Understanding Gender\",\n  count(case when v.viz_code='catg_lvl_1_drug_and_alcohol_prevention' then 1 end) AS \"Drug and Alcohol Prevention\",\n  count(case when v.viz_code='catg_lvl_1_understanding_hiv_and_stis' then 1 end) AS \"Understanding HIV and STIs\",\n  count(case when v.viz_code='catg_lvl_1_youth_migration' then 1 end) AS \"Youth Migration\",\n  count(case when v.viz_code='mental_support' then 1 end) AS \"Mental Support Services\"\nFROM _visit_pages v\nGROUP BY DATE_TRUNC('month', v.visit_date);",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n),\n_visit_pages AS (\n  SELECT\n    v.visit_date,\n    p.viz_code\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.parent_id is null\n    AND p.viz_code != 'app_visit'\n    AND $__timeFilter(v.visit_date)\n)\n\nSELECT \n  to_char(DATE_TRUNC('month', v.visit_date), 'Mon-YY') AS visit_to_month,\n  count(case when v.viz_code='video' then 1 end) AS \"Educational Video\",\n  count(case when v.viz_code='service' then 1 end) AS \"Health Clinic\",\n  count(case when v.viz_code='catg_lvl_1_reprod_health' then 1 end) AS \"Understand Reproductive Health\",\n  count(case when v.viz_code='help' then 1 end) AS \"FAQ\",\n  count(case when v.viz_code='catg_lvl_1_understanding_gender' then 1 end) AS \"Understanding Gender\",\n  count(case when v.viz_code='catg_lvl_1_drug_and_alcohol_prevention' then 1 end) AS \"Drug and Alcohol Prevention\",\n  count(case when v.viz_code='catg_lvl_1_understanding_hiv_and_stis' then 1 end) AS \"Understanding HIV and STIs\",\n  count(case when v.viz_code='catg_lvl_1_youth_migration' then 1 end) AS \"Youth Migration\",\n  count(case when v.viz_code='mental_support' then 1 end) AS \"Mental Support Services\"\nFROM _visit_pages v\nGROUP BY DATE_TRUNC('month', v.visit_date);",
           "refId": "A",
           "select": [
             [
@@ -2598,6 +2847,10 @@
       "type": "barchart"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "ចំនួនអ្នកចុចទាក់ទងសេវាគាំទ្រផ្លូវចិត្ត 1280 បែងចែកតាមខែ (Number of initial contact to 1280 by month)",
       "fieldConfig": {
         "defaults": {
@@ -2737,11 +2990,12 @@
             "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n),\n_visit_pages AS (\n  SELECT\n    v.visit_date,\n    p.code\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.code in ('messenger', 'telegram', 'phone', 'sms')\n    AND $__timeFilter(v.visit_date)\n)\n\nSELECT \n  to_char(DATE_TRUNC('month', v.visit_date), 'Mon-YY') AS visit_to_month,\n  count(case when v.code='telegram' then 1 end) AS \"Telegram\",\n  count(case when v.code='phone' then 1 end) AS \"Hotline\",\n  count(case when v.code='messenger' then 1 end) AS \"Messenger\",\n  count(case when v.code='sms' then 1 end) AS \"SMS\"\nFROM _visit_pages v\nGROUP BY DATE_TRUNC('month', v.visit_date);",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n),\n_visit_pages AS (\n  SELECT\n    v.visit_date,\n    p.code\n  FROM visits v\n  INNER JOIN pages p ON v.page_id = p.id\n  INNER JOIN _app_users u ON v.app_user_id = u.id\n  WHERE \n    p.code in ('messenger', 'telegram', 'phone', 'sms')\n    AND $__timeFilter(v.visit_date)\n)\n\nSELECT \n  to_char(DATE_TRUNC('month', v.visit_date), 'Mon-YY') AS visit_to_month,\n  count(case when v.code='telegram' then 1 end) AS \"Telegram\",\n  count(case when v.code='phone' then 1 end) AS \"Hotline\",\n  count(case when v.code='messenger' then 1 end) AS \"Messenger\",\n  count(case when v.code='sms' then 1 end) AS \"SMS\"\nFROM _visit_pages v\nGROUP BY DATE_TRUNC('month', v.visit_date);",
           "refId": "A",
           "select": [
             [
@@ -2753,6 +3007,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "timeColumn": "time",
           "where": [
             {
@@ -2767,6 +3038,10 @@
       "type": "barchart"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "ចំនួនចូលទស្សនាប្រធានបទសំណួរច្រើនជាងគេទាំង 10 (Top 10 most visited topics)",
       "fieldConfig": {
         "defaults": {
@@ -2861,11 +3136,12 @@
             "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  t.name_en,\n  count(*) as \"# of visits\"\nFROM visits v\nINNER JOIN _app_users u ON v.app_user_id = u.id\nINNER JOIN topics t ON v.pageable_id = t.id\nWHERE \n  $__timeFilter(v.visit_date)\n  AND v.pageable_type = 4\nGROUP BY t.name_en\nORDER BY count(*) DESC\nLIMIT 10;\n",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n),\n_app_users AS (\n  SELECT * \n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  t.name_en,\n  count(*) as \"# of visits\"\nFROM visits v\nINNER JOIN _app_users u ON v.app_user_id = u.id\nINNER JOIN topics t ON v.pageable_id = t.id\nWHERE \n  $__timeFilter(v.visit_date)\n  AND v.pageable_type = 4\nGROUP BY t.name_en\nORDER BY count(*) DESC\nLIMIT 10;\n",
           "refId": "A",
           "select": [
             [
@@ -2877,6 +3153,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "facilities",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -2893,6 +3186,10 @@
       "type": "barchart"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "និន្នាការអ្នកចុះឈ្មោះប្រើប្រាស់កម្មវិធី \"សុខភាពយុវជន\" (User registration trend)",
       "fieldConfig": {
         "defaults": {
@@ -2988,11 +3285,12 @@
             "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users au\n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n  AND $__timeFilter(au.registered_at)\n)\n\nSELECT \n  to_char(DATE_TRUNC('month', u.registered_at), 'Mon-YY') AS user_to_month,\n  count(*) as \"Total user\"\nFROM _app_users u\nGROUP BY DATE_TRUNC('month', u.registered_at);",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n),\n_app_users AS (\n  SELECT * \n  FROM app_users au\n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n  AND $__timeFilter(au.registered_at)\n)\n\nSELECT \n  to_char(DATE_TRUNC('month', u.registered_at), 'Mon-YY') AS user_to_month,\n  count(*) as \"Total user\"\nFROM _app_users u\nGROUP BY DATE_TRUNC('month', u.registered_at);",
           "refId": "A",
           "select": [
             [
@@ -3004,6 +3302,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "facilities",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -3020,6 +3335,10 @@
       "type": "barchart"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "និន្នាការអ្នកចុះឈ្មោះប្រើប្រាស់កម្មវិធី \"សុខភាពយុវជន\" (User registration trend)",
       "fieldConfig": {
         "defaults": {
@@ -3115,11 +3434,12 @@
             "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT * \n  FROM app_users au\n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n  AND $__timeFilter(au.registered_at)\n)\n\nSELECT \n  to_char(DATE_TRUNC('month', u.registered_at), 'Mon-YY') AS user_to_month,\n  SUM(CASE u.gender WHEN 'male' THEN 1 ELSE 0 END) as \"Male\",\n  SUM(CASE u.gender WHEN 'female' THEN 1 ELSE 0 END) as \"Female\",\n  SUM(CASE u.gender WHEN 'lgbt' THEN 1 ELSE 0 END) as \"LGBT+\",\n  SUM(CASE u.gender WHEN 'unknown' THEN 1 ELSE 0 END) as \"Unknown\",\n  SUM(CASE u.gender WHEN null THEN 1 ELSE 0 END) as \"Anonymous\"\nFROM _app_users u\nGROUP BY DATE_TRUNC('month', u.registered_at);",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n),\n_app_users AS (\n  SELECT\n    registered_at,\n    gender\n  FROM app_users au\n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n  AND $__timeFilter(au.registered_at)\n)\n\nSELECT \n  to_char(DATE_TRUNC('month', u.registered_at), 'Mon-YY') AS user_to_month,\n  SUM(CASE u.gender WHEN 'male' THEN 1 ELSE 0 END) as \"Male\",\n  SUM(CASE u.gender WHEN 'female' THEN 1 ELSE 0 END) as \"Female\",\n  SUM(CASE u.gender WHEN 'lgbt' THEN 1 ELSE 0 END) as \"LGBT+\",\n  SUM(CASE u.gender WHEN 'unknown' THEN 1 ELSE 0 END) as \"Unknown\",\n  SUM(CASE WHEN u.gender is null THEN 1 ELSE 0 END) as \"Anonymous\"\nFROM _app_users u\nGROUP BY DATE_TRUNC('month', u.registered_at);",
           "refId": "A",
           "select": [
             [
@@ -3131,6 +3451,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "facilities",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -3160,6 +3497,10 @@
       "type": "row"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3218,7 +3559,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT \n    *,\n    (\n      CASE \n        WHEN gender = 'male' THEN 'Male'\n        WHEN gender = 'female' THEN 'Female'\n        WHEN gender = 'lgbt' THEN 'LGBT+'\n        WHEN gender = 'unknown' THEN 'Unknown'\n        ELSE 'Anonymous'\n      END\n    ) as gender_en\n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n),\ntracking_questions AS (\n  SELECT \n    q.id, \n    s.topic_id as topic_id,\n    ROW_NUMBER() OVER(PARTITION BY s.topic_id ORDER BY q.display_order ASC) AS row\n  FROM questions q\n  JOIN sections s ON q.section_id = s.id\n  WHERE q.tracking = true\n  ORDER BY q.display_order\n),\ntracking_answers AS (\n  SELECT \n    q.id,\n    q.topic_id,\n    t.name,\n    sa.value,\n    q.row\n  FROM survey_answers sa\n  JOIN tracking_questions q ON sa.question_id = q.id\n  JOIN taggings tg ON tg.taggable_id = q.id AND tg.taggable_type = 'Question'\n  JOIN tags t ON tg.tag_id = t.id\n  JOIN surveys s ON sa.survey_id = s.id\n  JOIN _app_users au ON s.app_user_id = au.id\n  WHERE\n    $__timeFilter(s.quizzed_at)\n),\nparticipants AS (\n  SELECT s.* \n  FROM surveys s\n  JOIN _app_users au ON s.app_user_id = au.id\n  WHERE\n    $__timeFilter(s.quizzed_at)\n)\n\nSELECT \n  f.name_en AS \"Survey\",\n  (select sum(n.success_count) from mobile_notifications n where n.topic_id = f.id) AS \"# of push notifications\",\n  (select count(*) from participants p where p.topic_id = f.id) AS \"# of participation\",\n  (\n    SELECT concat(sa.name, ' (', ARRAY_TO_STRING(array_agg(sa.answer), ', '), ')')\n    FROM (\n      SELECT ta.name, concat(ta.value, '=', count(*)) as answer\n      FROM tracking_answers ta\n      WHERE row = 1 AND topic_id = f.id\n      GROUP BY ta.name, ta.value\n    ) sa\n    GROUP BY sa.name\n  ) AS \"1st tracking\",\n  (\n    SELECT concat(sa.name, ' (', ARRAY_TO_STRING(array_agg(sa.answer), ', '), ')')\n    FROM (\n      SELECT ta.name, concat(ta.value, '=', count(*)) as answer\n      FROM tracking_answers ta\n      WHERE row = 2 AND topic_id = f.id\n      GROUP BY ta.name, ta.value\n    ) sa\n    GROUP BY sa.name\n  ) AS \"2nd tracking\"\nFROM topics f\nWHERE \n  f.type='Topics::SurveyForm' \n  AND f.published_at IS NOT NULL",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n),\n_app_users AS (\n  SELECT \n    *,\n    (\n      CASE \n        WHEN gender = 'male' THEN 'Male'\n        WHEN gender = 'female' THEN 'Female'\n        WHEN gender = 'lgbt' THEN 'LGBT+'\n        WHEN gender = 'unknown' THEN 'Unknown'\n        ELSE 'Anonymous'\n      END\n    ) as gender_en\n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n),\ntracking_questions AS (\n  SELECT \n    q.id, \n    s.topic_id as topic_id,\n    ROW_NUMBER() OVER(PARTITION BY s.topic_id ORDER BY q.display_order ASC) AS row\n  FROM questions q\n  JOIN sections s ON q.section_id = s.id\n  WHERE q.tracking = true\n  ORDER BY q.display_order\n),\ntracking_answers AS (\n  SELECT \n    q.id,\n    q.topic_id,\n    t.name,\n    sa.value,\n    q.row\n  FROM survey_answers sa\n  JOIN tracking_questions q ON sa.question_id = q.id\n  JOIN taggings tg ON tg.taggable_id = q.id AND tg.taggable_type = 'Question'\n  JOIN tags t ON tg.tag_id = t.id\n  JOIN surveys s ON sa.survey_id = s.id\n  JOIN _app_users au ON s.app_user_id = au.id\n  WHERE\n    $__timeFilter(s.quizzed_at)\n),\nparticipants AS (\n  SELECT s.* \n  FROM surveys s\n  JOIN _app_users au ON s.app_user_id = au.id\n  WHERE\n    $__timeFilter(s.quizzed_at)\n)\n\nSELECT \n  f.name_en AS \"Survey\",\n  (select sum(n.success_count) from mobile_notifications n where n.topic_id = f.id) AS \"# of push notifications\",\n  (select count(*) from participants p where p.topic_id = f.id) AS \"# of participation\",\n  (\n    SELECT concat(sa.name, ' (', ARRAY_TO_STRING(array_agg(sa.answer), ', '), ')')\n    FROM (\n      SELECT ta.name, concat(ta.value, '=', count(*)) as answer\n      FROM tracking_answers ta\n      WHERE row = 1 AND topic_id = f.id\n      GROUP BY ta.name, ta.value\n    ) sa\n    GROUP BY sa.name\n  ) AS \"1st tracking\",\n  (\n    SELECT concat(sa.name, ' (', ARRAY_TO_STRING(array_agg(sa.answer), ', '), ')')\n    FROM (\n      SELECT ta.name, concat(ta.value, '=', count(*)) as answer\n      FROM tracking_answers ta\n      WHERE row = 2 AND topic_id = f.id\n      GROUP BY ta.name, ta.value\n    ) sa\n    GROUP BY sa.name\n  ) AS \"2nd tracking\"\nFROM topics f\nWHERE \n  f.type='Topics::SurveyForm' \n  AND f.published_at IS NOT NULL",
           "refId": "A",
           "sql": {
             "columns": [
@@ -3243,6 +3584,10 @@
       "type": "table"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3299,7 +3644,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT \n    *,\n    (\n      CASE \n        WHEN gender = 'male' THEN 'Male'\n        WHEN gender = 'female' THEN 'Female'\n        WHEN gender = 'lgbt' THEN 'LGBT+'\n        WHEN gender = 'unknown' THEN 'Unknown'\n        ELSE 'Anonymous'\n      END\n    ) as gender_en\n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  p.name_en,\n  count(*)\nFROM visits v\nJOIN pages p ON v.page_id = p.id\nINNER JOIN _app_users au ON v.app_user_id = au.id\nWHERE \n  p.parent_id is null\n  AND p.code IN ('open_remote_notification', 'open_in_app_notification')\n  AND $__timeFilter(v.visit_date)\nGROUP BY p.name_en",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n),\n_app_users AS (\n  SELECT \n    *,\n    (\n      CASE \n        WHEN gender = 'male' THEN 'Male'\n        WHEN gender = 'female' THEN 'Female'\n        WHEN gender = 'lgbt' THEN 'LGBT+'\n        WHEN gender = 'unknown' THEN 'Unknown'\n        ELSE 'Anonymous'\n      END\n    ) as gender_en\n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT\n  p.name_en,\n  count(*)\nFROM visits v\nJOIN pages p ON v.page_id = p.id\nINNER JOIN _app_users au ON v.app_user_id = au.id\nWHERE \n  p.parent_id is null\n  AND p.code IN ('open_remote_notification', 'open_in_app_notification')\n  AND $__timeFilter(v.visit_date)\nGROUP BY p.name_en",
           "refId": "A",
           "sql": {
             "columns": [
@@ -3324,6 +3669,10 @@
       "type": "piechart"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3380,7 +3729,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n),\n_app_users AS (\n  SELECT \n    *,\n    (\n      CASE \n        WHEN gender = 'male' THEN 'Male'\n        WHEN gender = 'female' THEN 'Female'\n        WHEN gender = 'lgbt' THEN 'LGBT+'\n        WHEN gender = 'unknown' THEN 'Unknown'\n        ELSE 'Anonymous'\n      END\n    ) as gender_en\n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT \n  INITCAP(au.gender_en),\n  count(*)\nFROM surveys s\nJOIN topics f ON s.topic_id = f.id\nJOIN _app_users au ON s.app_user_id = au.id\nWHERE\n  $__timeFilter(s.quizzed_at)\n  AND f.published_at IS NOT null\n  AND f.type = 'Topics::SurveyForm'\nGROUP BY au.gender_en;",
+          "rawSql": "WITH _joined_app_users AS (\n  SELECT\n    u.id,\n    u.age,\n    (CASE WHEN c.id is not null THEN c.id::text ELSE '' END) as profile_id,\n    (CASE WHEN u.province_id is not null THEN u.province_id ELSE '' END) as province_id,\n    (CASE WHEN u.gender is not null THEN u.gender ELSE '' END) as gender,\n    u.platform\n  FROM app_users u\n  LEFT JOIN app_user_characteristics ac ON ac.app_user_id = u.id\n  LEFT JOIN characteristics c ON ac.characteristic_id = c.id\n  WHERE u.deleted_at is NULL\n),\n_app_users AS (\n  SELECT \n    *,\n    (\n      CASE \n        WHEN gender = 'male' THEN 'Male'\n        WHEN gender = 'female' THEN 'Female'\n        WHEN gender = 'lgbt' THEN 'LGBT+'\n        WHEN gender = 'unknown' THEN 'Unknown'\n        ELSE 'Anonymous'\n      END\n    ) as gender_en\n  FROM app_users \n  WHERE id IN (\n    SELECT distinct(fu.id)\n    FROM _joined_app_users fu\n    WHERE \n      fu.province_id in ($province_id)\n      AND fu.age BETWEEN ${age:raw}\n      AND fu.gender in (${gender:raw})\n      AND fu.profile_id in ($characteristic_id)\n      AND fu.platform in ($platform)\n  )\n)\n\nSELECT \n  INITCAP(au.gender_en),\n  count(*)\nFROM surveys s\nJOIN topics f ON s.topic_id = f.id\nJOIN _app_users au ON s.app_user_id = au.id\nWHERE\n  $__timeFilter(s.quizzed_at)\n  AND f.published_at IS NOT null\n  AND f.type = 'Topics::SurveyForm'\nGROUP BY au.gender_en;",
           "refId": "A",
           "sql": {
             "columns": [
@@ -3484,6 +3833,11 @@
           },
           {
             "selected": false,
+            "text": "<= 30",
+            "value": "0 AND 30"
+          },
+          {
+            "selected": false,
             "text": "30 - 52",
             "value": "30 AND 52"
           },
@@ -3498,7 +3852,7 @@
             "value": "-1 AND -1"
           }
         ],
-        "query": "< 10 : 0 AND 9, 10 - 14 : 10 AND 14, 15 - 17 : 15 AND 17, 18 - 25 : 18 AND 24, 25 - 30 : 25 AND 30, 30 - 52 : 30 AND 52,  > 52 : 52 AND 99, Anonymous : -1 AND -1",
+        "query": "< 10 : 0 AND 9, 10 - 14 : 10 AND 14, 15 - 17 : 15 AND 17, 18 - 25 : 18 AND 24, 25 - 30 : 25 AND 30, <= 30 : 0 AND 30, 30 - 52 : 30 AND 52,  > 52 : 52 AND 99, Anonymous : -1 AND -1",
         "queryValue": "",
         "skipUrlSync": false,
         "type": "custom"
