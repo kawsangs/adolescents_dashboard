@@ -88,10 +88,6 @@
       "pluginVersion": "0.2.1",
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -125,10 +121,6 @@
       "type": "yesoreyeram-boomtheme-panel"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "Total number of registered app users",
       "fieldConfig": {
         "defaults": {
@@ -173,10 +165,6 @@
       "pluginVersion": "10.1.4",
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -225,10 +213,6 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "Total number of open App (count as soon as the app is opened, and count every 30-minute interval)",
       "fieldConfig": {
         "defaults": {
@@ -273,10 +257,6 @@
       "pluginVersion": "10.1.4",
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -325,11 +305,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
-      "description": "Total visits of the main category(Home page menu, and count every 30-minute interval)",
+      "description": "Total visits of the main categories(Home page menu, and count every 30-minute interval)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -373,10 +349,6 @@
       "pluginVersion": "10.1.4",
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -425,10 +397,6 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ផែនទីអ្នកប្រើប្រាស់កម្មវិធីសុខភាពយុវជន (Map of app users)",
       "gridPos": {
         "h": 13,
@@ -491,10 +459,6 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -545,10 +509,6 @@
       "type": "alexandra-trackmap-panel"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "Count unique user visits every 30-minute interval within the last 7 days",
       "fieldConfig": {
         "defaults": {
@@ -593,10 +553,6 @@
       "pluginVersion": "10.1.4",
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -645,10 +601,6 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "Count unique user visits every 30-minute interval within the last 30 days",
       "fieldConfig": {
         "defaults": {
@@ -693,10 +645,6 @@
       "pluginVersion": "10.1.4",
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -745,10 +693,6 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "Count unique user visits every 30-minute interval within the last 90 days",
       "fieldConfig": {
         "defaults": {
@@ -793,10 +737,6 @@
       "pluginVersion": "10.1.4",
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -845,10 +785,6 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមខេត្ត (Number of app users by province)",
       "fieldConfig": {
         "defaults": {
@@ -905,10 +841,6 @@
       "pluginVersion": "10.1.4",
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -959,10 +891,6 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាម Platform (Number of app user by platform)",
       "fieldConfig": {
         "defaults": {
@@ -1013,10 +941,6 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1067,10 +991,6 @@
       "type": "piechart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមភេទ (Number of app users by gender)",
       "fieldConfig": {
         "defaults": {
@@ -1258,10 +1178,6 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1310,10 +1226,6 @@
       "type": "piechart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមអាយុ (Number of app users by age range)",
       "fieldConfig": {
         "defaults": {
@@ -1426,10 +1338,6 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1478,10 +1386,6 @@
       "type": "piechart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមលក្ខណៈសម្បត្តិ (Number of app users by profile)",
       "fieldConfig": {
         "defaults": {
@@ -1648,10 +1552,6 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1700,10 +1600,6 @@
       "type": "piechart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមមុខរបរ (Number of app users by occupation)\nNote: N/A refers to anonymous.",
       "fieldConfig": {
         "defaults": {
@@ -1870,10 +1766,6 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1922,10 +1814,6 @@
       "type": "piechart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ចំនួនអ្នកប្រើប្រាស់កម្មវិធីបែងចែកតាមកម្រិតវប្បធម៌(Number of app users by education level) \nNote: N/A refers to anonymous.",
       "fieldConfig": {
         "defaults": {
@@ -2092,10 +1980,6 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -2144,10 +2028,6 @@
       "type": "piechart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ចំនួនការចូលទស្សនាទំព័រមុខ (At least visit one among home, services, .. etc.)",
       "fieldConfig": {
         "defaults": {
@@ -2361,10 +2241,6 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -2413,10 +2289,6 @@
       "type": "piechart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ចំនួនអ្នកចុចទាក់ទងសេវាគាំទ្រផ្លូវចិត្ត 1280 (# of initial contact to 1280)",
       "fieldConfig": {
         "defaults": {
@@ -2529,10 +2401,6 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -2581,10 +2449,6 @@
       "type": "piechart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ចំនួនការចូលទស្សនាទំព័រមុខបែងចែកតាមខែ (At least visit one among home, services, .. etc.)",
       "fieldConfig": {
         "defaults": {
@@ -2795,10 +2659,6 @@
       "pluginVersion": "9.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -2847,10 +2707,6 @@
       "type": "barchart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ចំនួនអ្នកចុចទាក់ទងសេវាគាំទ្រផ្លូវចិត្ត 1280 បែងចែកតាមខែ (Number of initial contact to 1280 by month)",
       "fieldConfig": {
         "defaults": {
@@ -2986,10 +2842,6 @@
       "pluginVersion": "9.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -3038,10 +2890,6 @@
       "type": "barchart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "ចំនួនចូលទស្សនាប្រធានបទសំណួរច្រើនជាងគេទាំង 10 (Top 10 most visited topics)",
       "fieldConfig": {
         "defaults": {
@@ -3132,10 +2980,6 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -3186,10 +3030,6 @@
       "type": "barchart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "និន្នាការអ្នកចុះឈ្មោះប្រើប្រាស់កម្មវិធី \"សុខភាពយុវជន\" (User registration trend)",
       "fieldConfig": {
         "defaults": {
@@ -3281,10 +3121,6 @@
       "pluginVersion": "9.2.1",
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -3335,10 +3171,6 @@
       "type": "barchart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "description": "និន្នាការអ្នកចុះឈ្មោះប្រើប្រាស់កម្មវិធី \"សុខភាពយុវជន\" (User registration trend)",
       "fieldConfig": {
         "defaults": {
@@ -3430,10 +3262,6 @@
       "pluginVersion": "9.2.1",
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -3497,10 +3325,6 @@
       "type": "row"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3552,10 +3376,6 @@
       "pluginVersion": "10.1.4",
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -3584,10 +3404,6 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3637,10 +3453,6 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -3669,10 +3481,6 @@
       "type": "piechart"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3722,10 +3530,6 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -3769,10 +3573,6 @@
           "value": [
             "$__all"
           ]
-        },
-        "datasource": {
-          "type": "postgres",
-          "uid": "PCC52D03280B7034C"
         },
         "definition": "select name_en AS __text, id AS __value  from locations where parent_id is null order by id",
         "hide": 0,
@@ -3919,10 +3719,6 @@
           "value": [
             "$__all"
           ]
-        },
-        "datasource": {
-          "type": "postgres",
-          "uid": "PCC52D03280B7034C"
         },
         "definition": "(select name_en AS __text, id::text AS __value  from characteristics) union all (select 'Undefined/Anonymous' AS __text, '' AS __value)",
         "hide": 0,
