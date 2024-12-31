@@ -3974,7 +3974,7 @@
     ]
   },
   "time": {
-    "from": "now-3y",
+    "from": "now-3M",
     "to": "now"
   },
   "timepicker": {},
